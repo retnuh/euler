@@ -572,13 +572,26 @@ prob18_tree() -> [
 [63, 66, 04, 68, 89, 53, 67, 30, 73, 16, 69, 87, 40, 31],
 [04, 62, 98, 27, 23, 09, 70, 98, 73, 93, 38, 53, 60, 04, 23]].
 
+prob18() ->
+    ?time(prob18(prob18_tree())).
+
 %% Turns out this is a breadth first problem.  Can just make a new
 %% tree with each node being the highest total possible to get there,
 %% and then pick the total on the last line...
 
-prob18([[H] | Rest]) ->
-    doh.
 
+prob18([H | Rest]) ->
+    prob18(H, Rest).
+
+prob18(LastScore, []) ->
+    lists:foldl(fun(X, A) -> max(X, A) end, 0, LastScore);
+prob18(LastScore, [Cur | Rest]) ->
+    prob18(prob18_score([0|LastScore], Cur, []), Rest).
+
+prob18_score([X | []], [Y |[]], Acc) ->
+    lists:reverse([X+Y|Acc]);
+prob18_score([X1 |[ X2 | Xs]], [Y1 | Ys], Acc) ->
+    prob18_score([X2 | Xs], Ys, [max(Y1+X2, Y1+X1) | Acc]).
 
 prob18_test() ->
-    ?_assertEqual(23, prob18([[3], [7, 4], [2, 4, 6], [8, 5, 9, 3]])).
+    ?assertEqual(23, prob18([[3], [7, 4], [2, 4, 6], [8, 5, 9, 3]])).
