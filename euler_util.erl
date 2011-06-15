@@ -1,6 +1,6 @@
 -module(euler_util).
 
--export([sqrt_int/1, is_palindrome/1, pow/2, factorial/1]).
+-export([sqrt_int/1, is_palindrome/1, pow/2, factorial/1, choose/2, digits/1, divisors/1]).
 
 -include_lib("eunit/include/eunit.hrl").
 
@@ -87,4 +87,34 @@ factorial(N, A) ->
 factorial_test_() ->
     [?_assertEqual(6, factorial(3)),
      ?_assertEqual(120, factorial(5))
+     ].
+
+choose(N, K) ->
+    factorial(N) div (factorial(K) * (factorial(N-K))).
+
+digits(I) ->
+    lists:map(fun(C) -> C - $0 end, integer_to_list(I)).
+
+digits_test_() ->
+    [?_assertEqual([1, 0, 9, 3], digits(1093))].
+
+divisors(N) when N == 1 ->
+    [1];
+divisors(N) when N < 4 ->
+    [1, N];
+divisors(N) when N > 1 ->
+    divisors(N, sqrt_int(N), 2, [1, N]).
+
+divisors(_N, S, X, A) when X > S ->
+    lists:sort(A);
+divisors(N, S, X, A) when N rem X == 0 ->
+    Y = N div X,
+    divisors(N, S, X+1, [X, Y | A]);
+divisors(N, S, X, A) ->
+    divisors(N, S, X+1, A).
+
+
+divisors_test_() ->
+    [?_assertEqual([1,2,4,7,14,28], divisors(28)),
+     ?_assertEqual([1], divisors(1))
      ].

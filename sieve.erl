@@ -32,7 +32,7 @@
 
 start() ->
     Started = lists:member(?MODULE, registered()),
-    ?debugFmt("Start - registered: ~p", [Started]),
+%    ?debugFmt("Start - registered: ~p", [Started]),
     start(Started).
 
 start(true) ->
@@ -45,9 +45,8 @@ stop() ->
     ?MODULE ! {self(), stop},
     receive
         V -> V
-    end,
-    Started = lists:member(?MODULE, registered()),
-    ?debugFmt("Stop - registered: ~p ~p", [Started, V]).
+    end.
+%    ?debugFmt("Stop - registered: ~p ~p", [lists:member(?MODULE, registered()), V]).
 
 % Return a list of primes up to and including Max (if it's a prime).
 primes_upto(Max) ->
@@ -95,8 +94,8 @@ init() ->
 loop(Set, Highest) ->
     receive
         {Pid, stop} ->
-            Pid ! unregister(?MODULE),
-            ?debugFmt("Stop (server) - registered: ~p", [?debugVal(lists:member(sieve, registered()))]);
+            Pid ! unregister(?MODULE);
+%            ?debugFmt("Stop (server) - registered: ~p", [?debugVal(lists:member(sieve, registered()))]);
         {Pid, upto, Max} ->
             {S, H} = ensure_highest(Set, Highest, Max),
             Primes = gb_sets:filter(fun(P) -> P =< Max end, S),
