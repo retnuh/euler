@@ -6,20 +6,8 @@
 (with-monad state-m
 
   (deftest nav-ops
-    (testing "getting non-existing elt"
-      (let [uf (domonad [a (get-or-add :a )] a)]
-        (is (= '([:a 1] {:a [:a 1]}) (uf {})))
-        )
-      )
-    (testing "getting existing elt"
-      (let [uf (domonad [a (get-or-add :a )] a)]
-        (is (= '([:b 2] {:a [:b 2]}) (uf {:a [:b 2]})))
-        )
-      )
     (testing "root non-existing elt"
       (let [uf (domonad [a (root :a )] a)]
-        (println "uf: " uf)
-        (println "invoke uf: " (uf {}))
         (is (= '([:a 1] {:a [:a 1]}) (uf {})))
         )
       )
@@ -56,19 +44,18 @@
         )
       )
     (testing "union one non existant elt"
-      (println "START")
       (let [uf (domonad [u (union :a :a )] u)]
         (is (= [nil {:a [:a 1]}] (uf {})))
         )
       )
     (testing "union two children common parent"
-      (println "START")
       (let [uf (domonad [ac (union :a :c ) bc (union :b :c ) ab (union :a :b )] ab)]
         (is (= [nil {:a [:c -1] :b [:c -1] :c [:c 3]}] (uf {})))
         )
       )
     (testing "connected two children common parent"
       (let [uf (domonad [ac (union :a :c ) bc (union :b :c ) ab (connected? :a :b )] ab)]
+        (println (uf {}))
         (is (= [true {:a [:c -1] :b [:c -1] :c [:c 3]}] (uf {})))
         )
       )
