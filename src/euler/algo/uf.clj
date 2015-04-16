@@ -10,6 +10,7 @@
        :if (= r key)
        :then [ret (m-result res)]
        :else [ret (root r)
+              ; updating the lookup key to flatten tree gives us ln* behavior.  Sweet!
               _ (set-val key [(first ret) -1])]]
       ret))
 

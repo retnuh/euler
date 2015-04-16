@@ -1,7 +1,8 @@
 (ns euler.algo.uf-test
   (:use clojure.test
         clojure.algo.monads
-        euler.algo.uf))
+        euler.algo.uf
+        alex-and-georges.debug-repl))
 
 (with-monad state-m
 
@@ -68,7 +69,8 @@
 
   )
 
-;(defn test-ns-hook []
-;  (foo))
+(let [foo-0blat 3]
+  (debug-repl)
+  )
 
 (run-tests)
