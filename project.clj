@@ -10,4 +10,5 @@
                  [org.clojars.gjahad/debug-repl "0.3.3"]
                  [org.clojure/tools.macro "0.1.5"]
                  [org.clojure/math.combinatorics "0.0.8"]
+                 [incanter/incanter-core "1.5.6"]
                  ])

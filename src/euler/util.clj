@@ -122,8 +122,11 @@
 (defn primes-up-to [n]
   (take-while #(<= % n) pprimes))
 
+;; Precompute primes in the background
+(future (last (primes-up-to 10000000)))
+
 (defn- connected-within1
-  [smaller larger] (or (= smaller (rest larger)) (= smaller (drop-last larger))))
+  [smaller larger] (= smaller (rest larger)))
 
 (defn- connected-same-length
   [seq1 seq2 cost-so-far]
