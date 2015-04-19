@@ -11,33 +11,41 @@
      (assoc! m k (apply update-in (get m k) ks f args))
      (assoc! m k (apply f (get m k) args)))))
 
-(defn build-node-reduction [start coll length-map offset]
-  (reduce (fn [m num]
-            (let [others (get length-map (+ offset (count num)))
-                  num-int (Integer/parseInt num)]
-              ;; (println "nl" num (filter #(util/connected? num %) others))
-              (reduce (fn [mm onum]
-                        ;; (println "\t" num onum)
-                        (let [onum-int (Integer/parseInt onum)]
-                          (if (> onum-int num-int)
-                            mm
-                            (update-in! mm [num-int] (fnil conj []) onum-int))))
-                      m
-                      (filter #(util/connected? num %) others))))
-          start
-          coll))
+(defn make-smaller-connected [prime-strings number]
+  (let [number-string (str number)
+        mutations (for [index (range (count number-string))
+                        :let [pre (.substring number-string 0 index)
+                              c (.charAt number-string index)
+                              post (.substring number-string (inc index))]
+                        other (range (int \0) (inc (int \9))) :when (not (== other (int c)))]
+                    (str pre (char other) post))
+        possibles (cons (.substring number-string 1) mutations)
+        ]
+    ;; (println possibles)
+    (sequence (comp
+               (filter prime-strings)
+               (map #(Integer/parseInt %))
+               (filter #(< % number))
+               )
+              possibles)))
+
+(let [primes (util/primes-up-to 200)
+      prime-strings (set (map str primes))]
+  ;; (println primes)
+  (println (vec (make-smaller-connected prime-strings 103))))
 
 
-(defn build-graph [numbers]
-  (let [number-strings (map str numbers)
-        length-map (time (group-by count number-strings))
-        foo (mapv (fn [[l v]] (println l (count v)) l) length-map)
-        tmap (time (reduce #(build-node-reduction %1 number-strings length-map %2) (transient {}) [-1 0]))]
-    
-    [(persistent! tmap)
-     #_[(filter #(.contains % "0") number-strings)
-      (filter #(.endsWith % "1") number-strings)]
-     ]))
+(defn build-graph [primes]
+  (loop [primes primes
+         prime-strings #{}
+         graph (transient {})]
+    (if-not primes
+      (persistent! graph)
+      (let [number (first primes)]
+        (recur (next primes)
+               (conj prime-strings (str number))
+               (assoc! graph number (make-smaller-connected prime-strings number)))
+        ))))
 
 (defn lookup-root [m val]
   (let [found (get m val val)]
@@ -53,37 +61,32 @@
       (recur nm old-root new-root))))
 
 (defn partition-relatives [primes graph]
-  (let [all (set primes)]
-    (loop [todo primes
-           roots {2 2}
-           unrelated #{}]
-      (if (empty? todo)
-        [(sets/difference all unrelated) unrelated]
-        (let [val (first todo)
-              nodes (graph val)
-              lowest-root (if nodes (apply min (map #(lookup-root roots %) nodes)) val)]
-          ;; (println val nodes lowest-root)
-          ;; (println roots)
-          (recur
-           (rest todo)
-           (reduce (fn [m n] (update-root m n lowest-root)) roots (cons val nodes))
-           (if (= 2 lowest-root) unrelated (conj unrelated val))))))))
+  (loop [todo primes
+         roots {2 2}
+         unrelated #{}]
+    (if (empty? todo)
+      unrelated
+      (let [val (first todo)
+            nodes (graph val)
+            lowest-root (if (empty? nodes) val (apply min (map #(lookup-root roots %) nodes)))]
+        ;; (println val nodes lowest-root)
+        ;; (println roots)
+        (recur
+         (rest todo)
+         (reduce (fn [m n] (update-root m n lowest-root)) roots (cons val nodes))
+         (if (= 2 lowest-root) unrelated (conj unrelated val)))))))
 
 (defn e425 [n]
   (let [primes (util/primes-up-to (int n))
-        [graph #_[has-zero ends-one]] (time (build-graph primes)) 
-        [related unrelated] (partition-relatives primes graph)]
+        graph (time (build-graph primes)) 
+        unrelated (time (partition-relatives primes graph))]
     ;; (println "graph" graph)
-    #_(do 
-      (println (sort has-zero))
-      (println (sort ends-one))
-      (println (sort unrelated)))
     [(reduce + unrelated) unrelated]))
 
 (time (e425 200))
 (time (e425 (Math/pow 10 3)))
 (time (e425 (Math/pow 10 4)))
-(time (first (e425 (Math/pow 10 5))))
+(time (println (first (e425 (Math/pow 10 7)))))
 
 ;; (let [tm (java.util.TreeMap. {3 :blart 1 :foo})
 ;;       [k v] (.pollFirstEntry tm)]

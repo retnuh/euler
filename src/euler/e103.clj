@@ -39,20 +39,55 @@
                :else (fd/!= bt ct)
                )))))
 
+(defn dominated? [[a b]]
+  (if (empty? a)
+    true
+    (and (< (first a) (first b)) (recur [(rest a) (rest b)]))))
+
+(defn subsets [vars]
+  (->> vars
+       combo/partitions
+       rest
+       (mapcat #(combo/combinations % 2))
+       (remove #(= 1 (count (first %)) (count (second %))))
+       (map vec)
+       sort
+       dedupe
+       ))
+
+(defn relevant-subsets [coll]
+  (let [all (subsets coll)
+        grouped (group-by #(= (count (first %)) (count (second %))) all)
+        uneven (grouped false)
+        undominated (->> (grouped true)
+                       (filter #(= (count (first %)) (count (second %))))
+                       (remove dominated?))
+        relevant (concat undominated uneven)]
+    (println "subset counts" (count all) (count uneven) (count undominated) (count relevant))
+    relevant))
+
+(defn lvar-subsets [n vars-vec]
+  (let [coll (range n)
+        rs (relevant-subsets coll)]
+    (map (fn [[l r]] [(map #(get vars-vec %) l) (map #(get vars-vec %) r)]) rs)))
+
+;; (println (lvar-subsets 4 (vec (take 4 (map (comp lvar str char) (iterate inc (int \a)))))))
+;; (def dom7 (relevant-subsets (range 1 8)))
+;; (println (count dom7))
+
 
 (defn e103
   ([n minint] (e103 n minint nil))
   ([n minint constraints]
   (println n minint constraints)
   (let [vars (vec (take n (map (comp lvar str char) (iterate inc (int \a)))))
-        subset-pairs (remove #(= 1 (count (first %)) (count (second %))) (mapcat #(combo/combinations % 2) (rest (combo/partitions vars))))
-        ;subset-pairs  (mapcat #(combo/combinations % 2) (rest (combo/partitions vars)))
-        domain (fd/interval minint (inc (int (Math/ceil (* 2.5 minint)))))
-        totals-domain (fd/interval minint (* n 3 minint))
+        subset-pairs (lvar-subsets n vars)
+        domain (fd/interval minint (inc (int (Math/ceil (* 3.5 minint)))))
+        totals-domain (fd/interval minint (if constraints (apply + constraints) (* n 4 minint)))
         results (run 1 [q]
                       (== q vars)
                       (everyg #(fd/in % domain) (butlast vars))
-                      (fd/in (last vars) (fd/interval (dec (* 2 minint)) (* n 3 minint)))
+                      (fd/in (last vars) (fd/interval (dec (* 2 minint)) (* n 4 minint)))
                       (fd/distinct vars)
                       (if constraints
                         (do
@@ -69,7 +104,7 @@
     ;(println domain)
     ;(println totals-domain)
     (println "results" (type results) results)
-    (if-let [r (first results)]
+    (if-let [r (time (first results))]
       (do
         (println "recur" n minint r)
         (recur n minint r))
@@ -88,22 +123,22 @@
                          results)))
     )))
 
-(test/deftest tests
-  (clojure.test/is (= [2 3 4] (e103 3 2)))
-  (clojure.test/is (= [3 5 6 7] (e103 4 3)))
-  (clojure.test/is (= [6 9 11 12 13] (e103 5 5)))
-  (clojure.test/is (= [11 18 19 20 22 25] (e103 6 11 [11, 17, 20, 22, 23, 24])))
-  )
 
-(test/run-tests)
+;;(println (e103 3 10))
 
-;(println (e103 3 10))
-#_(let [s (System/currentTimeMillis)
+(let [s (System/currentTimeMillis)
       ;r (e103 5 5)
       ;r (e103 6 11 [11, 17, 20, 22, 23, 24])
-      r (e103 7 19 [20, 31, 38, 39, 40, 42, 45])
+      ;r (e103 7 17 [20, 31, 38, 39, 40, 42, 45])
+      r (e103 7 20)
       ]
   (println "result" r (double (/ (- (System/currentTimeMillis) s) 60000)) "min"))
 
 ; result [20 31 38 39 40 42 45] 93.17848333333333 min
 ; so, didn't find anything...
+
+; Quite irritatingly, the answer _is_ the "near optimal" one suggested
+; in the problem (i.e. the constraints I've been plugging in).  The
+; Solver can find that pretty dang fast; in a few milliseconds.  It
+; then spends another 12 minutes "proving" that there aren't any other
+; better solutions.
