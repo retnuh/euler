@@ -5,6 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :plugins [[lein-idea "1.0.1"]]
   :dependencies [[org.clojure/clojure "1.7.0-beta1"]
+                 [criterium "0.4.3"]
                  [org.clojure/algo.monads "0.1.5"]
                  [org.clojure/core.logic "0.8.9"]
                  [org.clojars.gjahad/debug-repl "0.3.3"]

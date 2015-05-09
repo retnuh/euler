@@ -28,17 +28,17 @@
   number-of-colls arguments"
   {:static true}
   ([coll]
-     (if (seq? coll) coll
-         (or (seq coll) ())))
+   (if (seq? coll) coll
+       (or (seq coll) ())))
   ([xform coll]
-     (or (clojure.lang.IteratorSeq/create
-         (clojure.lang.TransformerIterator/create xform (clojure.lang.RT/iter coll)))
+   (or (clojure.lang.IteratorSeq/create
+        (clojure.lang.TransformerIterator/create xform (clojure.lang.RT/iter coll)))
        ()))
   ([xform coll & colls]
-     (or (clojure.lang.IteratorSeq/create
-         (clojure.lang.TransformerIterator/createMulti
-           xform
-           (map #(clojure.lang.RT/iter %) (cons coll colls))))
+   (or (clojure.lang.IteratorSeq/create
+        (clojure.lang.TransformerIterator/createMulti
+         xform
+         (map #(clojure.lang.RT/iter %) (cons coll colls))))
        ())))
 
 (defn precompute1-sequence
@@ -54,12 +54,12 @@
              (zero? (mod % n))             
              )))
 
-(defn- reduce-divisors [num divisor]
+(defn- reduce-divisors [[^long num ^long sqrt :as n] ^long divisor]
   ;; (println "rd" divisor num)
-  (if (zero? (mod num divisor))
-    (reduced nil)
-    num))
-
+  (cond
+    (> divisor sqrt) (reduced num)
+    (zero? (mod num divisor)) (reduced nil)
+    :else n))
 
 ;; Sieve that just collects the primes so far, using smart reduction
 ;; stuff to efficiently "loop" through existing primes. Simpler and
@@ -68,25 +68,25 @@
   ([] (vec-reduce-sieve []))
   ([init-coll]
    (fn [xf]
-    (let [c (java.util.ArrayList. (vec init-coll))]
-      (fn
-        ([] (xf))
-        ([result] (xf result))
-        ([result input]
-         (if-let [val (reduce reduce-divisors input c)]
-           (do
-             ;; (pthread "vec-reduce-sieve" val input result)
-             (.add c input)
-             (xf result input))
-           result)))))))
+     (let [c (java.util.ArrayList. (vec init-coll))]
+       (fn
+         ([] (xf))
+         ([result] (xf result))
+         ([result input]
+          (if-let [val (reduce reduce-divisors [input (long (Math/sqrt input))] c)]
+            (do
+              ;; (pthread "vec-reduce-sieve" val input result)
+              (.add c input)
+              (xf result input))
+            result)))))))
 
 #_(println "result" (reduce reduce-divisors 15 [3 7 5]))
 
 #_(take 10 (sequence  (comp  (comp
-                            (remove-evenly-divisible 3)
-                            (remove-evenly-divisible 5))
-                           (remove-evenly-divisible 7))
-                    (iterate #(do (println "iter " (+ 2 %)) (+ 2 %)) 3)))
+                              (remove-evenly-divisible 3)
+                              (remove-evenly-divisible 5))
+                             (remove-evenly-divisible 7))
+                      (iterate #(do (println "iter " (+ 2 %)) (+ 2 %)) 3)))
 
 ;; A sieve that uses an internal transducer chain, that grows at each
 ;; step using comp.  Works but probably builds a lot of thunks along
@@ -125,25 +125,63 @@
 ;; Precompute primes in the background
 (future (last (primes-up-to 10000000)))
 
-(defn- connected-within1
-  [smaller larger] (= smaller (rest larger)))
+(defn prime? [n]
+  (let [upto (int (Math/sqrt n))
+        coll (primes-up-to upto)]
+    (some? (reduce reduce-divisors n coll))))
 
-(defn- connected-same-length
-  [seq1 seq2 cost-so-far]
-  (let [cost (if (= (first seq1) (first seq2)) 0 1)
-        total-cost (+ cost-so-far cost)]
-    (cond
-      (empty? seq1) (= 1 cost-so-far)
-      (>= total-cost 2) false
-      :else (recur (rest seq1) (rest seq2) total-cost))))
 
-(defmulti connected? (fn [a b] (type a)))
-(defmethod connected? java.lang.Number [x y] (connected? (seq (str x)) (seq (str y))))
-(defmethod connected? java.lang.String [x y] (connected? (seq x) (seq y)))
-(defmethod connected? clojure.lang.Sequential [seq1 seq2]
-  (cond
-    (= (count seq1) (count seq2)) (connected-same-length seq1 seq2 0)
-    (>= (Math/abs (- (count seq1) (count seq2))) 2) false
-    (> (count seq1) (count seq2)) (connected-within1 seq2 seq1)
-    :else (connected-within1 seq1 seq2)))
+;; Introducing - the sievinator!!
 
+(defn vec-extend [v size val]
+  (let [vb (transient v)]
+    (while (< (count vb) size) 
+      (conj! vb val))
+    (persistent! vb)))
+
+(defn sievinator []
+  (let [primes-seen (atom [])
+        odd-numbers-seen (atom [])]
+    (letfn [(state [] {:primes-seen @primes-seen
+                       :odd-numbers-seen @odd-numbers-seen})
+            (number-for-index [^long c] (inc (* 2 (inc c))))
+            ;; this is not pretty
+            (fill-up-to! [^long n]
+              (when (< (dec (count @odd-numbers-seen)) n)
+                (let [numbers (transient (vec-extend @odd-numbers-seen (quot n 2) 0))
+                      primes @primes-seen
+                      next-index (count @odd-numbers-seen)
+                      s (range next-index (inc (quot (int (Math/sqrt n)) 2)))
+                      next-number (number-for-index next-index)]
+                  (dorun (for [p primes
+                               :let [d (quot next-number p) nd (if (even? d) (inc d) d)]
+                               m (range (dec (quot (* p nd) 2)) (count numbers) p)]
+                           (and (> nd 1) (assoc! numbers m p))))
+                  
+                  (dorun (for [i s
+                               :when (zero? (get numbers i))
+                               :let [c (number-for-index i)]
+                               m (rest (range
+                                        (max i (quot (* i (quot next-number c)) 2))
+                                        (count numbers)
+                                        c))]
+                           (assoc! numbers m c)))
+                  (reset! odd-numbers-seen (persistent! numbers))
+                  (dorun (for [i (range next-index (count @odd-numbers-seen))
+                               :when (zero? (get @odd-numbers-seen i))]
+                           (swap! primes-seen conj (number-for-index i)))))))
+            (primes-up-to [^long n]
+              (fill-up-to! n)
+              (take-while #(<= % n) (cons 2 @primes-seen)))
+            (factors [^long n]
+              (fill-up-to! n)
+              (loop [n n f [] numbers @odd-numbers-seen]
+                (if (even? n)
+                  (recur (unsigned-bit-shift-right n 1) (conj f 2) numbers)
+                  (let [i (get numbers (dec (quot n 2)))]
+                    (if (zero? i)
+                      (sort (conj f n))
+                      (recur (/ n i) (conj f i) numbers))))))]
+      {:state state
+       :primes-up-to primes-up-to
+       :factors factors})))

@@ -2,6 +2,28 @@
   (:require [euler.util :as util]
             [clojure.set :as sets]))
 
+(defn- connected-within1
+  [smaller larger] (= smaller (rest larger)))
+
+(defn- connected-same-length
+  [seq1 seq2 cost-so-far]
+  (let [cost (if (= (first seq1) (first seq2)) 0 1)
+        total-cost (+ cost-so-far cost)]
+    (cond
+      (empty? seq1) (= 1 cost-so-far)
+      (>= total-cost 2) false
+      :else (recur (rest seq1) (rest seq2) total-cost))))
+
+(defmulti connected? (fn [a b] (type a)))
+(defmethod connected? java.lang.Number [x y] (connected? (seq (str x)) (seq (str y))))
+(defmethod connected? java.lang.String [x y] (connected? (seq x) (seq y)))
+(defmethod connected? clojure.lang.Sequential [seq1 seq2]
+  (cond
+    (= (count seq1) (count seq2)) (connected-same-length seq1 seq2 0)
+    (>= (Math/abs (- (count seq1) (count seq2))) 2) false
+    (> (count seq1) (count seq2)) (connected-within1 seq2 seq1)
+    :else (connected-within1 seq1 seq2)))
+
 (defn update-in!
   "update-in that expects a transient guy at top level"
   {:added "1.0"
