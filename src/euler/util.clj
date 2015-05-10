@@ -112,24 +112,10 @@
              result)))))))
 
 
-(defn primes-seq []
+(defn old-primes-seq []
   (cons 2 (nonchunked-sequence (vec-reduce-sieve []) (iterate #(+ 2 %) 3))))
 
-(def primes (primes-seq))
-
 (def pprimes (cons 2 (precompute1-sequence (vec-reduce-sieve []) (iterate #(+ 2 %) 3))))
-
-(defn primes-up-to [n]
-  (take-while #(<= % n) pprimes))
-
-;; Precompute primes in the background
-(future (last (primes-up-to 10000000)))
-
-(defn prime? [n]
-  (let [upto (int (Math/sqrt n))
-        coll (primes-up-to upto)]
-    (some? (reduce reduce-divisors n coll))))
-
 
 ;; Introducing - the sievinator!!
 
@@ -140,12 +126,18 @@
     (persistent! vb)))
 
 (defn sievinator []
-  (let [the-agent (agent {:primes [] :odd-numbers-seen []})]
+  (let [the-agent (agent {:primes [] :odd-numbers-seen []})
+        default-block-size 500000]
     (letfn [(state [] @the-agent)
             (number-for-index [^long c] (inc (* 2 (inc c))))
+            (ensure-n [n wait?]
+              (let [{:keys [odd-numbers-seen]} @the-agent]
+                (when (< (count odd-numbers-seen) (quot n 2))
+                  (send the-agent fill-up-to n)
+                  (and wait? (await the-agent)))))
             ;; this is not pretty
             (fill-up-to [{:keys [odd-numbers-seen primes] :as current-state} ^long n]
-              (if-not (< (dec (count odd-numbers-seen)) n)
+              (if-not (< (count odd-numbers-seen) (quot n 2))
                 current-state
                 (let [numbers (transient (vec-extend odd-numbers-seen (quot n 2) 0))
                       next-index (count odd-numbers-seen)
@@ -170,19 +162,80 @@
                                                    (range next-index (count odd-numbers-seen))))]
                     {:odd-numbers-seen odd-numbers-seen :primes new-primes}))))
             (primes-up-to [^long n]
-              (send the-agent fill-up-to n)
+              (ensure-n n false)
               (take-while #(<= % n) (cons 2 (lazy-seq (do (await the-agent)
                                                           (:primes @the-agent))))))
             (factors [^long n]
-              (send the-agent fill-up-to n)
-              (await the-agent)
+              (ensure-n n true)
               (loop [n n f [] numbers (:odd-numbers-seen @the-agent)]
-                (if (even? n)
-                  (recur (unsigned-bit-shift-right n 1) (conj f 2) numbers)
-                  (let [i (get numbers (dec (quot n 2)))]
-                    (if (zero? i)
-                      (sort (conj f n))
-                      (recur (/ n i) (conj f i) numbers))))))]
-      {:state state
-       :primes-up-to primes-up-to
-       :factors factors})))
+                (cond
+                  (even? n) (recur (unsigned-bit-shift-right n 1) (conj f 2) numbers)
+                  (= 1 n) f
+                  :else (let [i (get numbers (dec (quot n 2)))]
+                          (if (zero? i)
+                            (sort (conj f n))
+                            (recur (/ n i) (conj f i) numbers))))))
+            (blocked-seq
+              ([f block-size]
+               (ensure-n block-size false)
+               (lazy-seq (blocked-seq f block-size 0)))
+              ([f block-size start-index]
+               (await the-agent)
+               (let [{:keys [primes odd-numbers-seen] :as s} @the-agent
+                     size (* 2 (count odd-numbers-seen))
+                     [sq nsize] (f s start-index)]
+                 (ensure-n (+ block-size size) false)
+                 (lazy-cat sq (blocked-seq f block-size nsize)))))
+            (primes-seq
+              ([] (primes-seq default-block-size))
+              ([block-size]
+               (cons 2 (blocked-seq (fn [{primes :primes} start-index]
+                                      [(map primes (range start-index (count primes))) (count primes)])
+                                    block-size))))
+             (composites-seq
+              ([] (composites-seq default-block-size))
+               ([block-size]
+                (let [odd-composites 
+                      (blocked-seq (fn [{numbers :odd-numbers-seen} start-index]
+                                     [(->> (range start-index (count numbers))
+                                            (filter #(pos? (numbers %)))
+                                            (map number-for-index))
+                                      (count numbers)])
+                                   block-size)
+                      even-composites (iterate #(+ 2 %) 4)
+                      ]
+                  (letfn [(sfn [e o] 
+                                (if (< (first e) (first o))
+                                  (cons (first e) (lazy-seq (sfn (rest e) o)))
+                                  (cons (first o) (lazy-seq (sfn e (rest o))))))]
+                    (lazy-seq (sfn even-composites odd-composites))
+                    ))))
+             (factors-seq
+               ([] (factors-seq (composites-seq)))
+               ([cs] (map #(vector % (factors %)) cs)))
+             (prime? [n]
+               (if (even? n)
+                 (= n 2)
+                 (do 
+                   (ensure-n n true)
+                   (let [{:keys [odd-numbers-seen]} @the-agent]
+                     (= 0 (odd-numbers-seen (dec (quot n 2))))))))
+            ]
+      {:wait #(await the-agent) :state state :primes-up-to primes-up-to
+       :primes-seq primes-seq :composites-seq composites-seq :factors-seq factors-seq
+       :factors factors :prime? prime?})))
+
+(def the-sievinator (sievinator))
+
+(def primes (:primes-seq the-sievinator))
+
+(def primes-up-to (:primes-up-to the-sievinator))
+
+(def prime? (:prime? the-sievinator))
+
+(def factors (:factors the-sievinator))
+
+(def composites (:composites-seq the-sievinator))
+
+(def factors-seq (:factors-seq the-sievinator))
+
