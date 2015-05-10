@@ -11,3 +11,5 @@ pom.xml
 euler.iml
 euler.ipr
 euler.iws
+.nrepl-port
+atlassian-ide-plugin.xml
