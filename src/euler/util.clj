@@ -140,24 +140,21 @@
     (persistent! vb)))
 
 (defn sievinator []
-  (let [primes-seen (atom [])
-        odd-numbers-seen (atom [])]
-    (letfn [(state [] {:primes-seen @primes-seen
-                       :odd-numbers-seen @odd-numbers-seen})
+  (let [the-agent (agent {:primes [] :odd-numbers-seen []})]
+    (letfn [(state [] @the-agent)
             (number-for-index [^long c] (inc (* 2 (inc c))))
             ;; this is not pretty
-            (fill-up-to! [^long n]
-              (when (< (dec (count @odd-numbers-seen)) n)
-                (let [numbers (transient (vec-extend @odd-numbers-seen (quot n 2) 0))
-                      primes @primes-seen
-                      next-index (count @odd-numbers-seen)
+            (fill-up-to [{:keys [odd-numbers-seen primes] :as current-state} ^long n]
+              (if-not (< (dec (count odd-numbers-seen)) n)
+                current-state
+                (let [numbers (transient (vec-extend odd-numbers-seen (quot n 2) 0))
+                      next-index (count odd-numbers-seen)
                       s (range next-index (inc (quot (int (Math/sqrt n)) 2)))
                       next-number (number-for-index next-index)]
                   (dorun (for [p primes
                                :let [d (quot next-number p) nd (if (even? d) (inc d) d)]
                                m (range (dec (quot (* p nd) 2)) (count numbers) p)]
                            (and (> nd 1) (assoc! numbers m p))))
-                  
                   (dorun (for [i s
                                :when (zero? (get numbers i))
                                :let [c (number-for-index i)]
@@ -166,16 +163,20 @@
                                         (count numbers)
                                         c))]
                            (assoc! numbers m c)))
-                  (reset! odd-numbers-seen (persistent! numbers))
-                  (dorun (for [i (range next-index (count @odd-numbers-seen))
-                               :when (zero? (get @odd-numbers-seen i))]
-                           (swap! primes-seen conj (number-for-index i)))))))
+                  (let [odd-numbers-seen (persistent! numbers)
+                        new-primes (reduce (fn [np i] (conj np (number-for-index i)))
+                                           primes
+                                           (filter #(zero? (get odd-numbers-seen %))
+                                                   (range next-index (count odd-numbers-seen))))]
+                    {:odd-numbers-seen odd-numbers-seen :primes new-primes}))))
             (primes-up-to [^long n]
-              (fill-up-to! n)
-              (take-while #(<= % n) (cons 2 @primes-seen)))
+              (send the-agent fill-up-to n)
+              (take-while #(<= % n) (cons 2 (lazy-seq (do (await the-agent)
+                                                          (:primes @the-agent))))))
             (factors [^long n]
-              (fill-up-to! n)
-              (loop [n n f [] numbers @odd-numbers-seen]
+              (send the-agent fill-up-to n)
+              (await the-agent)
+              (loop [n n f [] numbers (:odd-numbers-seen @the-agent)]
                 (if (even? n)
                   (recur (unsigned-bit-shift-right n 1) (conj f 2) numbers)
                   (let [i (get numbers (dec (quot n 2)))]
