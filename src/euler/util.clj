@@ -227,7 +227,7 @@
 
 (def the-sievinator (sievinator))
 
-(def primes (:primes-seq the-sievinator))
+(def primes ((:primes-seq the-sievinator)))
 
 (def primes-up-to (:primes-up-to the-sievinator))
 
@@ -239,3 +239,5 @@
 
 (def factors-seq (:factors-seq the-sievinator))
 
+(defn digits [n]
+  (mapv #(- (int %) (int \0)) (seq (str n))))
