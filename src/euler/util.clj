@@ -223,7 +223,7 @@
             ]
       {:wait #(await the-agent) :state state :primes-up-to primes-up-to
        :primes-seq primes-seq :composites-seq composites-seq :factors-seq factors-seq
-       :factors factors :prime? prime?})))
+       :factors factors :prime? prime? :ensure-n ensure-n})))
 
 (def the-sievinator (sievinator))
 
@@ -241,3 +241,23 @@
 
 (defn digits [n]
   (mapv #(- (int %) (int \0)) (seq (str n))))
+
+;; Integer partitions -
+;; https://en.wikipedia.org/wiki/Partition_(number_theory)#Algorithm
+
+(declare integer-partitions)
+
+(defn integer-partitions-actual
+  "Create all the integer partitions of N"
+  ([n] (if (<= n 1)
+         (list (list 1))
+         (apply list (list n) (for [x (range (dec n) 0 -1)
+                                    s (integer-partitions (- n x) x)]
+                                (conj s x)))))
+  ([n m]
+   (let [s (integer-partitions n)]
+     (if (>= m n)
+       s)
+     (filter #(<= (first %) m) s))))
+
+(def integer-partitions (memoize integer-partitions-actual))
