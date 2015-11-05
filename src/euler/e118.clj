@@ -1,19 +1,22 @@
 (ns euler.e118
-  (require [euler.util :refer [the-sievinator primes digits integer-partitions]]
+  (require [euler.util :refer [the-sievinator primes digits prime? integer-partitions]]
            [clojure.set :as sets]
-           [clojure.core.reducers :as r]))
+           [clojure.core.reducers :as r]
+           [clojure.math.combinatorics :as c]))
 
 #_((:ensure-n the-sievinator) 1000000000 false)
 
-(time (def e118-relevant-prime-vecs
-        (->> primes
-             #_(r/take-while #(<= % 1000000000))
-             (r/take-while #(<= % 1000000000))
-             (r/map digits)
-             (r/remove #(some #{0} %))
-             (r/filter #(= (count %) (count (set %))))
-             r/foldcat
-             )))
+(time (do (println (count e118-relevant-prime-vecs))
+          (def e118-relevant-prime-vecs
+            (->> primes
+                 #_(r/take-while #(<= % 1000000))
+                 (r/take-while #(<= % 1000000000))
+                 (r/map digits)
+                 (r/remove #(some #{0} %))
+                 (r/filter #(= (count %) (count (set %))))
+                 r/foldcat
+                 ))
+          (println (count e118-relevant-prime-vecs))))
 
 (def e118-by-count
   (group-by count e118-relevant-prime-vecs))
@@ -53,7 +56,7 @@
               (r/mapcat (fn [c] (r/map (fn [size] (e118 (conj primes-so-far c) size))
                                       remaining-sizes)))
               (r/mapcat identity)
-              r/foldcat))))))
+              ))))))
 
 (time (def it (e118)))
 (println (count it))
@@ -64,3 +67,30 @@
 (into #{} (map (fn [s] (apply + (map count s))) it))
 
 (into #{} (map (fn [s] (set (flatten (seq s)))) it))
+
+(def digits->int (memoize (fn ([v] (digits->int v 0))
+                            ([v t] (if (empty? v) t (recur (rest v) (+ (* 10 t) (first v))))))))
+
+(def e118-primes (set (map digits->int e118-relevant-prime-vecs)))
+(time (def e118-unfiltered-primes (set (take-while #(<= % 1000000000) primes))))
+
+(defn cartesian-permutations [s]
+  (apply c/cartesian-product (map c/permutations s)))
+
+(cartesian-permutations [[1 2] [4 6] [3 5]])
+
+(defn my-prime? [n]
+  (or (e118-primes n)
+      (when (e118-unfiltered-primes n)
+        (println "hmm found in unfiltered" n)
+        n)))
+
+(defn e118-perms []
+  (->> (c/partitions [1 2 3 4 5 6 7 8 9])
+       (r/mapcat cartesian-permutations)
+       (r/map #(map digits->int %))
+       #_(r/map #(do (println "foo:" %) %))
+       (r/filter #(every? my-prime? %))
+       r/foldcat))
+
+(time (println (count (e118-perms))))

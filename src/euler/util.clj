@@ -176,50 +176,51 @@
                             (sort (conj f n))
                             (recur (/ n i) (conj f i) numbers))))))
             (blocked-seq
-              ([f block-size]
-               (ensure-n block-size false)
-               (lazy-seq (blocked-seq f block-size 0)))
-              ([f block-size start-index]
-               (await the-agent)
-               (let [{:keys [primes odd-numbers-seen] :as s} @the-agent
-                     size (* 2 (count odd-numbers-seen))
-                     [sq nsize] (f s start-index)]
-                 (ensure-n (+ block-size size) false)
-                 (lazy-cat sq (blocked-seq f block-size nsize)))))
+                ([f block-size]
+                 (ensure-n block-size false)
+                 (lazy-seq (blocked-seq f block-size 0)))
+                ([f block-size start-index]
+                 (await the-agent)
+                 (let [{:keys [primes odd-numbers-seen] :as s} @the-agent
+                       size (* 2 (count odd-numbers-seen))
+                       [sq nsize] (f s start-index)]
+                   (ensure-n (+ block-size size) false)
+                   (lazy-cat sq (blocked-seq f block-size nsize)))))
             (primes-seq
-              ([] (primes-seq default-block-size))
-              ([block-size]
-               (cons 2 (blocked-seq (fn [{primes :primes} start-index]
-                                      [(map primes (range start-index (count primes))) (count primes)])
-                                    block-size))))
-             (composites-seq
-              ([] (composites-seq default-block-size))
-               ([block-size]
-                (let [odd-composites 
-                      (blocked-seq (fn [{numbers :odd-numbers-seen} start-index]
-                                     [(->> (range start-index (count numbers))
+                ([] (primes-seq default-block-size))
+                ([block-size]
+                 (cons 2 (blocked-seq (fn [{primes :primes} start-index]
+                                        [(map primes (range start-index (count primes))) (count primes)])
+                                      block-size))))
+            (composites-seq
+                ([] (composites-seq default-block-size))
+                ([block-size]
+                 (let [odd-composites 
+                       (blocked-seq (fn [{numbers :odd-numbers-seen} start-index]
+                                      [(->> (range start-index (count numbers))
                                             (filter #(pos? (numbers %)))
                                             (map number-for-index))
-                                      (count numbers)])
-                                   block-size)
-                      even-composites (iterate #(+ 2 %) 4)
-                      ]
-                  (letfn [(sfn [e o] 
-                                (if (< (first e) (first o))
-                                  (cons (first e) (lazy-seq (sfn (rest e) o)))
-                                  (cons (first o) (lazy-seq (sfn e (rest o))))))]
-                    (lazy-seq (sfn even-composites odd-composites))
-                    ))))
-             (factors-seq
-               ([] (factors-seq (composites-seq)))
-               ([cs] (map #(vector % (factors %)) cs)))
-             (prime? [n]
-               (if (even? n)
-                 (= n 2)
-                 (do 
-                   (ensure-n n true)
-                   (let [{:keys [odd-numbers-seen]} @the-agent]
-                     (= 0 (odd-numbers-seen (dec (quot n 2))))))))
+                                       (count numbers)])
+                                    block-size)
+                       even-composites (iterate #(+ 2 %) 4)
+                       ]
+                   (letfn [(sfn [e o] 
+                             (if (< (first e) (first o))
+                               (cons (first e) (lazy-seq (sfn (rest e) o)))
+                               (cons (first o) (lazy-seq (sfn e (rest o))))))]
+                     (lazy-seq (sfn even-composites odd-composites))
+                     ))))
+            (factors-seq
+                ([] (factors-seq (composites-seq)))
+                ([cs] (map #(vector % (factors %)) cs)))
+            (prime? [n]
+              (cond
+                (even? n) (= n 2)
+                (= 1 n) false
+                :else (do 
+                        (ensure-n n true)
+                        (let [{:keys [odd-numbers-seen]} @the-agent]
+                          (= 0 (odd-numbers-seen (dec (quot n 2))))))))
             ]
       {:wait #(await the-agent) :state state :primes-up-to primes-up-to
        :primes-seq primes-seq :composites-seq composites-seq :factors-seq factors-seq
