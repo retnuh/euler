@@ -7,51 +7,6 @@
            [euler.util.heap :as h]
            [criterium.core :refer [bench quick-bench]]))
 
-(def composites-seq (composites))
-
-#_(defn- do-curried
-  [name doc meta args body]
-  (let [cargs (vec (butlast args))]
-    `(defn ~name ~doc ~meta
-       (~cargs (fn [x#] (~name ~@cargs x#)))
-       (~args ~@body))))
-
-#_(defmacro ^:private defcurried
-  "Builds another arity of the fn that returns a fn awaiting the last
-  param"
-  [name doc meta args & body]
-  (do-curried name doc meta args body))
-
-#_(defn- do-rfn [f1 k fkv]
-  `(fn
-     ([] (~f1))
-     ~(clojure.walk/postwalk
-       #(if (sequential? %)
-          ((if (vector? %) vec identity)
-           (remove #{k} %))
-          %)
-       fkv)
-     ~fkv))
-
-#_(defmacro ^:private rfn
-  "Builds 3-arity reducing fn given names of wrapped fn and key, and k/v impl."
-  [[f1 k] fkv]
-  (do-rfn f1 k fkv))
-
-#_(defcurried r-keep
-  "Applies f to every value in the reduction of coll, and keeps computed
-values which are non-nil. Foldable."
-  {:added "1.5"}
-  [f coll]
-  (r/folder coll
-   (fn [f1]
-     (rfn [f1 k]
-          ([ret k v]
-           (if-let [r (f k v)]
-             (f1 ret r)
-             ret))))))
-
-
 (defn power-of? [x n & first-digit-x]
   (when-not (= n 1)
     (loop [c n]
@@ -60,10 +15,6 @@ values which are non-nil. Foldable."
         (> c x) nil
         (= c x) [x n]
         :else (recur (* c n))))))
-
-(def mod-10-table (make-array Integer/TYPE 0xFFFF))
-(doseq [i (range 0xFFFF)]
-  (aset mod-10-table i (mod i 10)))
 
 (def digit-table (make-array Boolean/TYPE 16 10))
 (letfn [(init-table [d & positions]
@@ -82,17 +33,11 @@ values which are non-nil. Foldable."
   )
 ;; (clojure.pprint/pprint digit-table)
 
-(defn table-mod-10 [n]
-  (let [t (bit-and n 0xFFFF)]
-    (if (zero? t)
-      (aget mod-10-table t)
-      (mod n 10))))
-
 (defn table-power-of?
   "This first checks if the first digit of x is one of the first digits
 in the cycle of digits when raising a number to multiple powers"
   [x n first-digit-x]
-  (when (aget digit-table (table-mod-10 n) first-digit-x)
+  (when (aget digit-table (mod n 10) first-digit-x)
     (power-of? x n)))
 
 (deftest power-of-test
@@ -126,7 +71,8 @@ in the cycle of digits when raising a number to multiple powers"
 (def the-e119-seq (e119-seq power-of?))
 
 (defn take-n-e119
-  ([n] (take-n-e119 n [] (map-indexed (fn [i n] [(inc i) n]) the-e119-seq)))
+  ([n] (take-n-e119 n the-e119-seq))
+  ([n s] (take-n-e119 n [] (map-indexed (fn [i n] [(inc i) n]) s)))
   ([n acc s]
    (when-not (zero? n)
      (let [x (time (first s))]
@@ -220,7 +166,7 @@ in the cycle of digits when raising a number to multiple powers"
   (->> (e119-pow-seq)
        (filter e119?)))
 
-;; (time (take-n-e119 30 [] (fast-e119-seq)))
+;; (time (take-n-e119 30 (fast-e119-seq)))
 ;; [248155780267521 63 8]
 ;; "Elapsed time: 15.651225 msecs"
 
