@@ -3,6 +3,28 @@
 (defn- pthread [& args]
   (apply println (.getName (Thread/currentThread)) args))
 
+(defn naive-pow [x n]
+  (loop [i n t 1]
+    (if (zero? i)
+      t
+      (recur (dec i) (*' t x)))))
+
+(defn pow [x n]
+  (cond
+    (= n 0) 1
+    (= n 1) x
+    :else
+    (let [a (make-array java.lang.Object 32)]
+      (loop [t 1 i 0 n n]
+        (if (zero? i)
+          (aset a i x)
+          (let [z (aget a (dec i))] (aset a i (*' z z))))
+        (cond
+          (zero? n) t
+          (even? n) (recur t (inc i) (unsigned-bit-shift-right n 1))
+          :else (recur (*' t (aget a i)) (inc i) (unsigned-bit-shift-right n 1))
+          )))))
+
 (defn precompute1-seq [#^clojure.lang.ISeq s]
   (when (seq s)
     (let [f (first s)
