@@ -1,4 +1,5 @@
-(ns euler.util)
+(ns euler.util
+  (require [clojure.math.combinatorics :as c]))
 
 (defn- pthread [& args]
   (apply println (.getName (Thread/currentThread)) args))
@@ -284,3 +285,7 @@
      (filter #(<= (first %) m) s))))
 
 (def integer-partitions (memoize integer-partitions-actual))
+
+(defn divisors
+  [n]
+  (cons 1 (sort (map #(apply * %) (distinct (mapcat identity (c/partitions (factors n))))))))

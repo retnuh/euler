@@ -12,4 +12,6 @@
                  [org.clojure/math.combinatorics "0.1.1"]
                  [incanter/incanter-core "1.5.6"]
                  [org.clojure/core.cache "0.6.4"]
+                 [clatrix "0.5.0"]
+                 [net.mikera/core.matrix "0.44.0"]
                  ])
