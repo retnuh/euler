@@ -157,7 +157,7 @@ in the cycle of digits when raising a number to multiple powers"
 
 (defn e119-pow-seq
   ([] (drop-while #(< (first %) 10)
-                  (e119-pow-seq (apply h/create-heap (map #(vector (* % %) % 2) (range 2 100))))))
+                  (e119-pow-seq (apply h/create-heap (mapv #(vector (* % %) % 2) (range 2 100))))))
   ([heap]
    (let [t (h/find-min heap)]
      (cons t (lazy-seq (e119-pow-seq (h/insert (h/delete-min heap) (next-pow t))))))))
@@ -169,6 +169,27 @@ in the cycle of digits when raising a number to multiple powers"
 ;; (time (take-n-e119 30 (fast-e119-seq)))
 ;; [248155780267521 63 8]
 ;; "Elapsed time: 15.651225 msecs"
+;; (nth (fast-e119-seq) 29)
+;; (quick-bench (nth (fast-e119-seq) 29))
 
 ;; Wow, super fast.  Didn't even go near 300.  Running it with 100
 ;; instead of 300 - 12 millis.  More than enough, highest seen was 68.
+
+
+;; Transducers anyone?
+
+(defn e119-pow-seq-t
+  ([] (drop-while #(< (first %) 10)
+                  (e119-pow-seq (apply h/create-heap (mapv #(vector (* % %) % 2) (range 2 100))))))
+  ([heap]
+   (let [t (h/find-min heap)]
+     (cons t (lazy-seq (e119-pow-seq (h/insert (h/delete-min heap) (next-pow t))))))))
+
+(defn fast-e119-seq-t []
+  (sequence (filter e119?) (e119-pow-seq-t)))
+
+;; (quick-bench (nth (fast-e119-seq-t) 29))
+
+
+;; (bench (nth (fast-e119-seq) 29))
+;; (bench (nth (fast-e119-seq-t) 29))

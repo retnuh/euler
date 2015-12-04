@@ -266,6 +266,16 @@
 (defn digits [n]
   (mapv #(- (int %) (int \0)) (seq (str n))))
 
+(defn seq->int [s]
+  (loop [t 0 s s]
+    (if (empty? s)
+      t
+      (recur (+ (* 10 t) (first s)) (rest s)))))
+
+(defn square-of-int? [n]
+  (let [rt (Math/sqrt n)]
+    (and (= rt (Math/floor rt)) (= n (* rt rt)))))
+
 ;; Integer partitions -
 ;; https://en.wikipedia.org/wiki/Partition_(number_theory)#Algorithm
 
