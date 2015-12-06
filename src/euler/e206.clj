@@ -1,12 +1,11 @@
 (ns euler.e206
-  (:use [incanter.interpolation :only [interpolate]])
   (:require [euler.util :as util]
             [clojure.math.combinatorics :as c]
             [clojure.set :as sets]))
 
 (defn e206int [v]
-  [(util/seq->int [1 (get v 0) 2 (get v 1) 3 (get v 2) 4 (get v 3) 5 (get v 4) 6 (get v 5) 7 (get v 6) 8 (get v 7) 9 3 0])
-   (util/seq->int [1 (get v 0) 2 (get v 1) 3 (get v 2) 4 (get v 3) 5 (get v 4) 6 (get v 5) 7 (get v 6) 8 (get v 7) 9 7 0])])
+  [(util/digits->int [1 (get v 0) 2 (get v 1) 3 (get v 2) 4 (get v 3) 5 (get v 4) 6 (get v 5) 7 (get v 6) 8 (get v 7) 9 3 0])
+   (util/digits->int [1 (get v 0) 2 (get v 1) 3 (get v 2) 4 (get v 3) 5 (get v 4) 6 (get v 5) 7 (get v 6) 8 (get v 7) 9 7 0])])
 
 (def MIN 1020304050607080900)
 (def MAX 1929394959697989990)

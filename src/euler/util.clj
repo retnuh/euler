@@ -266,7 +266,7 @@
 (defn digits [n]
   (mapv #(- (int %) (int \0)) (seq (str n))))
 
-(defn seq->int [s]
+(defn digits->int [s]
   (loop [t 0 s s]
     (if (empty? s)
       t
@@ -299,3 +299,10 @@
 (defn divisors
   [n]
   (cons 1 (sort (map #(apply * %) (distinct (mapcat identity (c/partitions (factors n))))))))
+
+(defn count-while [pred s]
+  (loop [c 0 s s]
+    (cond
+      (empty? s) c
+      (pred (first s)) (recur (inc c) (rest s))
+      :else c)))
