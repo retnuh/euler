@@ -14,4 +14,6 @@
                  [org.clojure/core.cache "0.6.4"]
                  [clatrix "0.5.0"]
                  [net.mikera/core.matrix "0.46.0"]
-                 ])
+                 ]
+  :jvm-opts ["-Xmx12g" "-Xms1g" "-server"] 
+  )

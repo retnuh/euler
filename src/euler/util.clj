@@ -306,3 +306,33 @@
       (empty? s) c
       (pred (first s)) (recur (inc c) (rest s))
       :else c)))
+
+(defn actual-factorial [n] (loop [t 1 i n] (if (zero? i) t (recur (*' i t) (dec i)))))
+(def factorial (memoize actual-factorial))
+
+;; def factorialMod(n, modulus):
+;;     ans=1
+;;     if n <= modulus//2:
+;;         #calculate the factorial normally (right argument of range() is exclusive)
+;;         for i in range(1,n+1):
+;;             ans = (ans * i) % modulus   
+;;     else:
+;;         #Fancypants method for large n
+;;         for i in range(n+1,modulus):
+;;             ans = (ans * i) % modulus
+;;         ans = modinv(ans, modulus)
+;;         ans = -1*ans + modulus
+;;     return ans % modulus
+
+(defn factorial-mod-p
+  "Compute n! mod p, with some shortcuts.  See:
+  http://stackoverflow.com/questions/9727962/fast-way-to-calculate-n-mod-m-where-m-is-prime"
+  [n p]
+  (letfn [(mod-fac [i n p]
+            (loop [t 1 i i]
+              (if (>= i n) t (recur (mod (*' t i) p) (inc i)))))]
+    (if (<= n (/ p 2))
+      (mod-fac 1 (inc n) p)
+      (let [a (.modInverse (biginteger (mod-fac (inc n) p p)) (biginteger p))]
+        (+ (* -1 a) p)))))
+
