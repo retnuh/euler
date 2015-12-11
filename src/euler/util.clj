@@ -1,7 +1,7 @@
 (ns euler.util
   (require [clojure.math.combinatorics :as c]))
 
-(defn- pthread [& args]
+(defn pthread [& args]
   (apply println (.getName (Thread/currentThread)) args))
 
 (defn naive-pow [x n]
@@ -299,6 +299,12 @@
 (defn divisors
   [n]
   (cons 1 (sort (map #(apply * %) (distinct (mapcat identity (c/partitions (factors n))))))))
+
+;; From
+;; http://stackoverflow.com/questions/110344/algorithm-to-calculate-the-number-of-divisors-of-a-given-number
+(defn count-divisors
+  [n]
+  (transduce (map inc) * (vals (frequencies (factors n)))))
 
 (defn count-while [pred s]
   (loop [c 0 s s]

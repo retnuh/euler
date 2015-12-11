@@ -1,9 +1,9 @@
 (defproject euler "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
+  :description "retnuH's clojue implementations of Project Euler solutions"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.7.0"]
+  :dependencies [[org.clojure/clojure "1.8.0-RC3"]
                  [criterium "0.4.3"]
                  [org.clojure/algo.monads "0.1.5"]
                  [org.clojure/core.logic "0.8.9"]
@@ -14,6 +14,7 @@
                  [org.clojure/core.cache "0.6.4"]
                  [clatrix "0.5.0"]
                  [net.mikera/core.matrix "0.46.0"]
+                 [org.clojure/core.match "0.3.0-alpha4"]
                  ]
   :jvm-opts ["-Xmx12g" "-Xms1g" "-server"] 
   )
