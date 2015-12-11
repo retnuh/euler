@@ -1,0 +1,281 @@
+From 125e9103d3411f5ad4f05aa6528d5de1a025e3fc Mon Sep 17 00:00:00 2001
+From: Hunter Kelly <hunter.kelly@zalando.ie>
+Date: Wed, 11 Nov 2015 10:50:29 +0000
+Subject: [PATCH 1/2] e84; e357
+
+---
+ project.clj        |   2 +
+ src/euler/e357.clj |  46 ++++++++++++++
+ src/euler/e84.clj  | 176 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ src/euler/util.clj |   7 ++-
+ 4 files changed, 230 insertions(+), 1 deletion(-)
+ create mode 100644 src/euler/e357.clj
+ create mode 100644 src/euler/e84.clj
+
+diff --git a/project.clj b/project.clj
+index 808b70c..8288206 100644
+--- a/project.clj
++++ b/project.clj
+@@ -12,4 +12,6 @@
+                  [org.clojure/math.combinatorics "0.1.1"]
+                  [incanter/incanter-core "1.5.6"]
+                  [org.clojure/core.cache "0.6.4"]
++                 [clatrix "0.5.0"]
++                 [net.mikera/core.matrix "0.44.0"]
+                  ])
+diff --git a/src/euler/e357.clj b/src/euler/e357.clj
+new file mode 100644
+index 0000000..049081a
+--- /dev/null
++++ b/src/euler/e357.clj
+@@ -0,0 +1,46 @@
++(ns euler.e357
++  (use clojure.test)
++  (require [euler.util :as util]
++           [clojure.set :as sets]
++           [clojure.core.reducers :as r]
++           [clojure.math.combinatorics :as c]
++           [euler.util.heap :as h]
++           [criterium.core :refer [bench quick-bench]]))
++
++(defn prime-generating-integer?
++  [n]
++  (let [dv (util/divisors n)
++        c (Math/ceil (/ (count dv) 2))
++        fh (drop 2 (take c dv))
++        sh (drop 2 (reverse (drop c dv)))]
++    #_(println c fh sh)
++    (and (= (count fh) (count sh))
++         (every? #(util/prime? %) (map + fh sh)))))
++
++(defn candidates [n] (map dec (util/primes-up-to n)))
++
++(defn e357
++  [n]
++  (time (let [c1 (time (set (candidates n)))
++              c2 (time (set (map #(* 2 (- % 2)) (util/primes-up-to (* n 3/5)))))
++              c (time (sets/intersection c1 c2))
++              f (time (lazy-cat [1 2] (filter prime-generating-integer? c)))]
++          (println "n:" n "c1:" (count c1) "c2:" (count c2) "candidates: " (count c))
++          (println  "filtered: " (count f))
++          #_(println f)
++          (time (println "ans:" (apply + f))))))
++
++;; (time (e357 100000000))
++
++(comment
++;; "Elapsed time: 6434.920478 msecs"
++;; "Elapsed time: 7200.278024 msecs"
++;; "Elapsed time: 4161.21878 msecs"
++;; "Elapsed time: 0.491186 msecs"
++;; n: 100000000 c1: 5761455 c2: 3562115 candidates:  458462
++;; filtered:  39628
++;; ans: 1739023853139
++;; "Elapsed time: 9.618538 msecs"
++;; "Elapsed time: 563802.186927 msecs"
++;; "Elapsed time: 563802.605912 msecs"
++  )
+diff --git a/src/euler/e84.clj b/src/euler/e84.clj
+new file mode 100644
+index 0000000..d13106f
+--- /dev/null
++++ b/src/euler/e84.clj
+@@ -0,0 +1,176 @@
++(ns euler.e84
++  (use clojure.test)
++  (require [euler.util :refer [the-sievinator primes digits composites factors pow]]
++           [clojure.core.matrix :as matrix]
++           [incanter.core :as ic]
++           [criterium.core :refer [bench quick-bench]]))
++
++;; Nice Markov chain article about Monopoly (of all things) here:
++;; http://www.codeproject.com/Articles/36025/Markov-Monopoly
++
++(comment
++;; GO	A1	CC1	A2	T1	R1	B1	CH1	B2	B3	JAIL
++;; H2									 	C1
++;; T2	 									U1
++;; H1	 									C2
++;; CH3	 									C3
++;; R4	 									R2
++;; G3	 									D1
++;; CC3	 									CC2
++;; G2	 									D2
++;; G1	 									D3
++;; G2J	F3	U2	F2	F1	R3	E3	E2	CH2	E1	FP
++  )
++
++(declare community-chest)
++(declare chance)
++(declare go-to-jail)
++
++(def override-fns {:community-chest community-chest :chance chance :go-to-jail go-to-jail})
++
++(def board
++  (into {} (map (fn [p] [(first p) p]))
++        [["GO" 0] ["A1" 01] ["CC1" 2 :community-chest] ["A2" 3] ["T1" 4]
++         ["R1" 5 :rail-road] ["B1" 6] ["CH1" 7 :chance] ["B2" 8] ["B3" 9]
++         ["JAIL" 10 :jail] ["C1" 11] ["U1" 12] ["C2" 13] ["C3" 14]
++         ["R2" 15 :rail-road] ["D1" 16] ["CC2" 17 :community-chest] ["D2" 18] ["D3" 19]
++         ["FP" 20] ["E1" 21] ["CH2" 22 :chance] ["E2" 23] ["E3" 24]
++         ["R3" 25 :rail-road] ["F1" 26] ["F2" 27] ["U2" 28] ["F3" 29]
++         ["G2J" 30 :go-to-jail] ["G1" 31] ["G2" 32] ["CC3" 33 :community-chest] ["G3" 34]
++         ["R4" 35 :rail-road] ["CH3" 36 :chance] ["H1" 37] ["T2" 38] ["H2" 39]]))
++(def board-by-num (into {} (map (fn [p] [(second p) p]) (vals board))))
++
++(defn square-number [square-name]
++  (second (board square-name)))
++
++(defn next-utility [n]
++  (condp = n
++    7  (square-number "U1")
++    22 (square-number "U2")
++    36 (square-number "U1")
++    :else (throw (IllegalStateException. "Whu Whu Wut??"))))
++
++(defn next-railroad [n]
++  (condp = n
++    7  (square-number "R2")
++    22 (square-number "R3")
++    36 (square-number "R1")
++    :else (throw (IllegalStateException. "Whu Whu Huh Wut??"))))
++
++(defn go-to-jail [_]
++  [[1 10]])
++
++(comment
++  ;; Community Chest (2/16 cards):
++  ;; Advance to GO
++  ;; Go to JAIL
++  )
++
++(defn community-chest [n]
++  [[1/16 0] [1/16 10] [14/16 n]])
++
++(comment
++  ;; Chance (10/16 cards):
++  ;; Advance to GO
++  ;; Go to JAIL
++  ;; Go to C1
++  ;; Go to E3
++  ;; Go to H2
++  ;; Go to R1
++  ;; Go to next R (railway company)
++  ;; Go to next R
++  ;; Go to next U (utility company)
++  ;; Go back 3 squares.
++  )
++
++(defn chance [n]
++  [[1/16 0]
++   [1/16 10]
++   [1/16 (square-number "C1")]
++   [1/16 (square-number "E3")]
++   [1/16 (square-number "H2")]
++   [1/16 (square-number "R1")]
++   [2/16 (next-railroad n)]
++   [1/16 (next-utility n)]
++   [1/16 (- n 3)]
++   [6/16 n]])
++
++(defn square-probability
++  "Given a square, return a seq of [prob square] tuples of where the piece will actually land."
++  [n]
++  (let [[name nn & [override] :as sq] (board-by-num n)]
++    (println "square:" sq override (override-fns override))
++    (if-let [override-fn (override-fns override)]
++      (mapcat (fn [[p x :as s]]
++                (if-not (= x n)
++                  (map (fn [[p2 y]] [(* p p2) y]) (square-probability x))
++                  [s])) (override-fn n))
++      [[1 n]])))
++
++;; (square-probability 36)
++
++;; (community-chest 2)
++
++(defn dominant-eigenvector
++  [m]
++  (let [{:keys [vectors values]} (ic/decomp-eigenvalue m)
++        max-index (apply max-key second (map-indexed vector values))
++        dom (matrix/slice vectors 1 (first max-index))
++        s (apply + dom)]
++    (println "max-index:" max-index)
++    (vec (map #(/ % s) dom))))
++
++(defn dice-distribution
++  [sides]
++  (let [sq (* sides sides)
++        r (range 1 (inc sides))
++        fr (->> r
++                (mapcat (fn [x] (map #(+ % x) r)))
++                frequencies
++                (map (fn [[k v]] [(/ v sq) k]))
++                (sort-by second))]
++    fr))
++
++(defn movement-matrix
++  [sides]
++  (let [m (matrix/new-matrix :clatrix 40 40)
++        dist (dice-distribution sides)
++        triple-doubles (/ (* sides sides sides))
++        normal (- 1 triple-doubles)]
++    (println "triple-doubles:" triple-doubles "normal:" normal)
++    (doseq [c (range 40)
++            [p ro] dist :let [r (mod (+ c ro) 40)]]
++      (do
++        (matrix/mset! m r c (+ p (matrix/mget m r c)))
++        #_(matrix/mset! m r c (+ (* p normal) (matrix/mget m r c)))
++        #_(matrix/mset! m 10 c (+ triple-doubles (matrix/mget m r c)))))
++    m))
++
++(defn special-matrix
++  [sides]
++   (let [m (matrix/new-matrix :clatrix 40 40)]
++    (doseq [c (range 40)
++            [p r] (square-probability c)]
++      (matrix/mset! m r c (+ p (matrix/mget m r c))))
++    m))
++
++
++;; (movement-matrix 6)
++;; (doseq [s (matrix/slices (movement-matrix 4) 1)] (println s))
++
++;; (square-probability 0)
++;; (dice-distribution 4)
++
++(defn e84
++  [sides]
++  (let [mm (movement-matrix sides)
++        sm (special-matrix sides)
++        pm (matrix/mmul sm mm)
++        de (dominant-eigenvector pm)]
++    (->> de
++         (map-indexed (fn [i p] [i p]))
++         (sort-by second)
++         reverse)))
++
++;; (println (e84 4))
++;; (println (e84 6))
+diff --git a/src/euler/util.clj b/src/euler/util.clj
+index 17f2479..0f1b665 100644
+--- a/src/euler/util.clj
++++ b/src/euler/util.clj
+@@ -1,4 +1,5 @@
+-(ns euler.util)
++(ns euler.util
++  (require [clojure.math.combinatorics :as c]))
+ 
+ (defn- pthread [& args]
+   (apply println (.getName (Thread/currentThread)) args))
+@@ -284,3 +285,7 @@
+      (filter #(<= (first %) m) s))))
+ 
+ (def integer-partitions (memoize integer-partitions-actual))
++
++(defn divisors
++  [n]
++  (cons 1 (sort (map #(apply * %) (distinct (mapcat identity (c/partitions (factors n))))))))
+-- 
+2.3.2 (Apple Git-55)
+
