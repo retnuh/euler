@@ -342,3 +342,7 @@
       (let [a (.modInverse (biginteger (mod-fac (inc n) p p)) (biginteger p))]
         (+ (* -1 a) p)))))
 
+
+(defn power-of-2?
+  [n]
+  (= 1 (.bitCount (biginteger n))))

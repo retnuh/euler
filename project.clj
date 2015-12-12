@@ -15,6 +15,7 @@
                  [clatrix "0.5.0"]
                  [net.mikera/core.matrix "0.46.0"]
                  [org.clojure/core.match "0.3.0-alpha4"]
+                 [aysylu/loom "0.5.4"]
                  ]
   :jvm-opts ["-Xmx12g" "-Xms1g" "-server"] 
   )
