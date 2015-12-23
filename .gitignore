@@ -13,3 +13,4 @@ euler.ipr
 euler.iws
 .nrepl-port
 atlassian-ide-plugin.xml
+.lein-repl-history
