@@ -166,10 +166,12 @@
                       next-index (count odd-numbers-seen)
                       s (range next-index (inc (quot (int (Math/sqrt n)) 2)))
                       next-number (number-for-index next-index)]
+                  ;; Mark factors of known primes
                   (dorun (for [p primes
                                :let [d (quot next-number p) nd (if (even? d) (inc d) d)]
                                m (range (dec (quot (* p nd) 2)) (count numbers) p)]
                            (and (> nd 1) (assoc! numbers m p))))
+                  ;; Mark factors of new primes
                   (dorun (for [i s
                                :when (zero? (get numbers i))
                                :let [c (number-for-index i)]
