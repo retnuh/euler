@@ -40,16 +40,15 @@
 (defn benefit [m]
   (emap-indexed (fn [[r c] e]
                   (let [rw (slice m 0 r) cl (slice m 1 c)
-                        slice-lossage (fn [t i] (+ t (- e i)))
-                        rloss (reduce slice-lossage 0 rw)
-                        closs  (reduce slice-lossage 0 cl)]
-                    #_(println e r c rloss closs (+ rloss closs))
-                    (+ rloss closs)))
+                        bfits (mapv #(- e %) (concat rw cl))
+                        avg-bfit (/ (apply + bfits) (- (count bfits) 2))]
+                    #_(println e r c bfits avg-bfit)
+                    avg-bfit))
                 m))
 
 (defn max-index [m]
   (reduce (fn [[_ m :as best] [_ e :as cur]]
-            (when (= e m) (println "Warning possible tie:" e))
+            (when (and (pos? e) (= e m)) (println "Warning possible tie:" e))
             (if (> e m) cur best))
           [[-1 -1] Integer/MIN_VALUE]
           (map vector (index-seq m) (eseq m))))
@@ -61,12 +60,12 @@
          [[r c :as i] e] (max-index bm)
          s (get-in m i)]
      (println "Tot:" tot)
-     (pm bm)
+     ;; (pm bm)
      (if (= 2 (count m))
        (let [all (vec (flatten m)) ad (+ (get all 0) (get all 3)) bc (+ (get all 1) (get all 2))]
          (+ tot (if (> ad bc) ad bc)))
        (do
-         (println "Selecting: " s i e)
+         (println "Selecting: " s i (double e))
          (recur (sel/sel m (sel/exclude r) (sel/exclude c)) (+ tot (get-in m [r c]))))))))
 
 ;; (time (println (max-benefit little)))
@@ -76,4 +75,24 @@
 ;; (time (println (max-benefit big)))
 ;; 13891
 ;; "Elapsed time: 51.109635 msecs"
+;; Hmm not correct sadly
+
+(def brute-force (memoize (fn [m]
+                            (if (number? m)
+                              [m]
+                              (let [row (first m)]
+                                (reduce (fn [best cur] (if (> (esum best) (esum cur)) best cur))
+                                        (for [[i v] (map-indexed vector row)]
+                                          (conj (brute-force (sel/sel m (sel/exclude 0) (sel/exclude i))) v))))))))
+
+;; (time (println (brute-force little)))
+;; 3315
+;; "Elapsed time: 11.146504 msecs"
+
+;; (time (println (brute-force big)))
+;; 13938
+;; "Elapsed time: 4146.593392 msecs"
+;; correct but boooooring
+;; wonder why "benefit" guy didn't work
+
 
