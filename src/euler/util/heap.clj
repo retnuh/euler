@@ -42,7 +42,9 @@
 (extend-protocol Heap
   nil
   (rank [_] 0)
+  (insert [_ v] (->LeftistHeap 1 v nil nil))
   (merge [_ other] other)
+  (find-min [_] nil)
   (is-empty? [_] true)
 
   LeftistHeap
@@ -55,13 +57,15 @@
   (merge [{val-this :value left-this :left right-this :right :as this}
           {val-other :value left-other :left right-other :right :as other}]
     (cond
-     (is-empty? other) this
-     (not (pos? (compare val-this val-other))) (ensure-leftist left-this
-                                               (merge right-this other)
-                                               val-this)
-     :else (ensure-leftist left-other
-                           (merge this right-other)
-                           val-other)))
+      (is-empty? other) this
+      (not (pos? (compare (if (sequential? val-this) (first val-this) val-this)
+                          (if (sequential? val-other) (first val-other) val-other))))
+      (ensure-leftist left-this
+                      (merge right-this other)
+                      val-this)
+      :else (ensure-leftist left-other
+                            (merge this right-other)
+                            val-other)))
   
   (insert [this v]
     (merge (->LeftistHeap 1 v nil nil)
@@ -78,6 +82,15 @@
 (defn create-heap [val & vals]
   (reduce (fn [h v] (insert h v)) (->LeftistHeap 1 val nil nil) vals))
 
+(defn delete-min-dedup
+  ([heap] (delete-min-dedup (delete-min heap) (find-min heap)))
+  ([heap val]
+   #_(println "dmd:" val (find-min heap))
+   (if (or (empty? heap)
+           (not= (if (sequential? val) (first val) val)
+                 (if (sequential? (find-min heap)) (first (find-min heap)) (find-min heap))))
+     heap
+     (recur (delete-min heap) val))))
 ;;
 ;; Using pure functions and maps
 ;;
@@ -164,8 +177,10 @@
 ;; Binomial Heaps
 ;;
 
-(defn mk-binomial-heap [rank value children]
-  {:rank rank :value value :children children})
+(defn mk-binomial-heap
+  ([value] [(mk-binomial-heap 0 value [])])
+  ([rank value children]
+   {:rank rank :value value :children children}))
 
 
 (defn link-binomial-heaps [{rank :rank value-a :value children-a :children :as heap-a}
@@ -210,11 +225,29 @@
     (merge-binomial-heaps (reverse children)
                           rest)))
 
+(defn extract-min-binomial-heap [heaps]
+  (let [[{:keys [value children]} rest] (remove-min-binomial-heap heaps)]
+    [value  (merge-binomial-heaps (reverse children) rest)]))
+
 (defn binomial-heap-from-list [coll]
   (reduce (fn [acc n]
             (insert-into-binomial-heap n acc))
           []
           coll))
+
+(defn extract-min-dedup-binomial-heap
+  ([heaps] (let [[val h] (extract-min-binomial-heap heaps)]
+             (extract-min-dedup-binomial-heap val h)))
+  ([val heaps]
+   #_(println "dmd:" val (find-min heap))
+   (if (empty? heaps)
+     [val heaps]
+     (let [[nv nh] (extract-min-binomial-heap heaps)]
+       (if (not= (if (sequential? val) (first val) val)
+                 (if (sequential? nv) (first nv) nv))
+         [val heaps]
+         (recur val nh))))))
+
 
 ;;
 ;; Exercises - p23

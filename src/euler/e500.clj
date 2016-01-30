@@ -39,6 +39,7 @@
            result))))))
 
 (into [] (just-once identity) [1 1 1 2 2 2 1 3 1 2 1 2 4 1 4 2 3 5])
+(into [] (distinct) [1 1 1 2 2 2 1 3 1 2 1 2 4 1 4 2 3 5])
 
 #_(println  (into []  (comp  
                      (map (juxt identity util/count-divisors))
