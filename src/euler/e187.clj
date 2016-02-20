@@ -17,18 +17,12 @@
 
 ;; would have been nice but too slow :P
 
-(def counter (completing (fn ([] 0) ([[t _]] (inc t)))))
+(def counter (completing (fn ([] 0) ([t _] (inc t)))))
 
 (defn pairs-for-prime [n primes]
   (let [p (first primes)
         limit (/ n p)]
-    (loop [primes primes
-           t 0]
-      (if-let [x (first primes)]
-        (if (> x limit)
-          t
-          (recur (rest primes) (inc t)))
-        t))))
+    (transduce (take-while #(<= % limit)) counter primes)))
 
 (pairs-for-prime 30 (util/primes-up-to 15))
 (util/primes-up-to 15)
@@ -36,6 +30,7 @@
 (defn e187 [n]
   (let [primes (util/primes-up-to (/ n 2))
         root (Math/sqrt n)]
+    #_(reduce + (map (partial pairs-for-prime n) (take-while #(<= % root) primes)))
     (loop [primes primes
            t 0]
       (if (> (first primes) root)
