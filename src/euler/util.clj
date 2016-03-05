@@ -276,7 +276,11 @@
 
 (defn square-of-int? [n]
   (let [rt (Math/sqrt n)]
-    (and (= rt (Math/floor rt)) (= n (* rt rt)))))
+    (and (= rt (Math/floor rt)) (== n (* rt rt)))))
+
+(defn cube-of-int? [n]
+  (let [rt (Math/cbrt n)]
+    (and (= rt (Math/floor rt)) (== n (* rt rt rt)))))
 
 ;; Integer partitions -
 ;; https://en.wikipedia.org/wiki/Partition_(number_theory)#Algorithm
