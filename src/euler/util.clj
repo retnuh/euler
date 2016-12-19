@@ -302,6 +302,17 @@
 
 (def integer-partitions (memoize integer-partitions-actual))
 
+;; http://stackoverflow.com/questions/14053885/integer-partition-algorithm-and-recursion
+(def count-distinct-integer-partitions
+  (memoize
+   (fn [n m]
+     (cond
+       (= n m) (inc (count-distinct-integer-partitions n (dec m)))
+       (or (zero? m) (neg? n)) 0
+       (or (zero? n) (= 1 m)) 1
+       :else (+ (count-distinct-integer-partitions n (dec m)) (count-distinct-integer-partitions (- n m), m))))))
+
+
 (defn divisors
   [n]
   (cons 1 (sort (map #(apply * %) (distinct (mapcat identity (c/partitions (factors n))))))))
