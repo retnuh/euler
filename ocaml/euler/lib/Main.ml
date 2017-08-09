@@ -1,7 +1,7 @@
 open Core
 open Sys
        
-let min_blocks = 50
+let min_blocks = ref 3
 
 let rec print_indent = function
   | 0 -> ()
@@ -51,13 +51,13 @@ let rec count_one ca blocks total_space =
 let rec count_all_base self total_space =
   (* print_indent indent; *)
   (* Printf.printf "count_all: %d\n" total_space;  *)
-  let r = if total_space < min_blocks then
+  let r = if total_space < !min_blocks then
             1
           else
             let rec loop_all total = function
               | -1 -> total 
-              | n -> loop_all (total + (count_one self (min_blocks + n) total_space)) (n -1)
-            in loop_all (self (total_space - 1)) (total_space - min_blocks)
+              | n -> loop_all (total + (count_one self (!min_blocks + n) total_space)) (n -1)
+            in loop_all (self (total_space - 1)) (total_space - !min_blocks)
   in
   (* print_indent indent; *)
   (* Printf.printf "count_all result: %d -> %d\n" total_space r;  *)
@@ -82,9 +82,15 @@ let memo_ref f =
  *)
 
 let count_all = memo_ref count_all_base
-                         
-(* let run () = Printf.printf "%d\n\n" @@ count_all @@ int_of_string Sys.argv.(1)  *)
-let run () =
+
+let time f =
+  let start = Unix.gettimeofday ()
+  in f (); 
+     let stop = Unix.gettimeofday ()
+     in Printf.printf "Execution time: %fs\n%!" (stop -. start)
+                      
+let e115 () = 
+  min_blocks := 50;
   let total_blocks = ref 100 in
   let count = ref @@ count_all !total_blocks in begin
       while !count < 1000000 do
@@ -93,5 +99,9 @@ let run () =
       done;
       Printf.printf "%d -> %d \n\n" !total_blocks !count
     end
+
+
+(* let run () = Printf.printf "%d\n\n" @@ count_all @@ int_of_string Sys.argv.(1)  *)
+let run () = time e115 
 
 let add2 x = x + 2
