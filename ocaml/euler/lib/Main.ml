@@ -102,6 +102,37 @@ let e115 () =
 
 
 (* let run () = Printf.printf "%d\n\n" @@ count_all @@ int_of_string Sys.argv.(1)  *)
-let run () = time e115 
+let run () = time e115  
 
-let add2 x = x + 2
+let is_odd x = match x land 1 with
+  | 0 -> false
+  | _ -> true
+
+let is_even x = not @@ is_odd x
+
+let halfway_back x =
+  let h = x / 2 in
+  match is_even x with
+  | true -> h
+  | false -> h + 1
+
+let e407 n =
+  let rec m a = 
+    if (a*a) mod n = a then
+      a
+    else
+      m (a-1)
+  in
+  m (n-1)
+
+let e407_loop () =
+  let tot = ref 0 in
+  let n = int_of_string Sys.argv.(1) in
+  for a = 1 to n do
+    let r = (e407 a) in
+    tot := !tot + r;
+    Printf.printf "M(%d) = %d\n" a r
+  done;
+  Printf.printf "ans = %d\n" !tot
+                       
+(* let run () = time e407_loop *)

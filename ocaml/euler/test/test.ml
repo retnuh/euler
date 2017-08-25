@@ -1,5 +1,7 @@
 
-let test () =
-  assert (Lib.Main.add2 5 == 7)
+let test () = begin
+    assert (Lib.Sieve.count_primes 1000 == 168);
+    assert (Lib.Sieve.count_primes 100 == 25)
+  end
 
-let _ = test()
+let _ = test ()

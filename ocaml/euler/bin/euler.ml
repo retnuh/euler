@@ -1,1 +1,1 @@
-let _ = Lib.Main.run()
+let _ = Lib.Sieve.run()

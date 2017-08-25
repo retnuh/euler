@@ -3,4 +3,4 @@
 
 (library (
   (name lib)
-  (libraries (core))))
+  (libraries (core core_extended core_bench cfstream))))
