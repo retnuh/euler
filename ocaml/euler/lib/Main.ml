@@ -5,7 +5,7 @@ let time f =
   let stop = Unix.gettimeofday ()
   in Printf.printf "Execution time: %fs\n%!" (stop -. start)
 
-module Mod = E204
+module Mod = E134
 
 let run () = 
   let n= if (Array.length Sys.argv > 1) then
