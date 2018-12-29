@@ -1,138 +1,21 @@
-open Core
-open Sys
-       
-let min_blocks = ref 3
-
-let rec print_indent = function
-  | 0 -> ()
-  | n -> print_string "\t"; print_indent (n-1)
-
-(*
-let memo_rec f =
-  let m = ref [] in
-  let rec g x =
-    try
-      List.assoc x !m
-    with
-    Not_found ->
-      let y = f g x in
-        m := (x, y) :: !m ;
-        y
-  in
-  g
-
-let fib_rec_memo_trivial n =  
-  let table = Hashtbl.Poly.create () in
-  let rec fib_rec_memo x = 
-    match Hashtbl.find table x with
-    | Some y -> y
-    | None ->
-      let y = fib_rec_memo (x-1) + fib_rec_memo (x-2) in
-      Hashtbl.add_exn table ~key:x ~data:y;
-      y
-  in
-  fib_rec_memo
-  *)
-
-let rec count_one ca blocks total_space =
-  (* print_indent indent; *)
-  (* Printf.printf "count_one: %d %d\n" blocks total_space;   *)
-  let r = if blocks + 1 >= total_space then
-            1
-          else if blocks + 1 = total_space then
-            1
-          else
-            ca (total_space - blocks -1)
-  in
-  (* print_indent indent; *)
-  (* Printf.printf "count_one: %d %d -> %d\n" blocks total_space r; *)
-  r
-                                         
-let rec count_all_base self total_space =
-  (* print_indent indent; *)
-  (* Printf.printf "count_all: %d\n" total_space;  *)
-  let r = if total_space < !min_blocks then
-            1
-          else
-            let rec loop_all total = function
-              | -1 -> total 
-              | n -> loop_all (total + (count_one self (!min_blocks + n) total_space)) (n -1)
-            in loop_all (self (total_space - 1)) (total_space - !min_blocks)
-  in
-  (* print_indent indent; *)
-  (* Printf.printf "count_all result: %d -> %d\n" total_space r;  *)
-  r
-
-let memo_ref f =
-  let table = Hashtbl.Poly.create () in
-  let rec g x = match Hashtbl.find table x with
-    | Some y -> y
-    | None ->
-       let y = f g x in
-       Hashtbl.add_exn table ~key:x ~data:y;
-       y
-  in
-  g
-    
-    
-  
-(*
-      let run () = print_int (count_one 0 3 7); print_newline (); print_newline ()
-
- *)
-
-let count_all = memo_ref count_all_base
 
 let time f =
   let start = Unix.gettimeofday ()
   in f (); 
-     let stop = Unix.gettimeofday ()
-     in Printf.printf "Execution time: %fs\n%!" (stop -. start)
-                      
-let e115 () = 
-  min_blocks := 50;
-  let total_blocks = ref 100 in
-  let count = ref @@ count_all !total_blocks in begin
-      while !count < 1000000 do
-        incr total_blocks;
-        count := count_all !total_blocks
-      done;
-      Printf.printf "%d -> %d \n\n" !total_blocks !count
-    end
+  let stop = Unix.gettimeofday ()
+  in Printf.printf "Execution time: %fs\n%!" (stop -. start)
 
+module Mod = E204
 
-(* let run () = Printf.printf "%d\n\n" @@ count_all @@ int_of_string Sys.argv.(1)  *)
-let run () = time e115  
-
-let is_odd x = match x land 1 with
-  | 0 -> false
-  | _ -> true
-
-let is_even x = not @@ is_odd x
-
-let halfway_back x =
-  let h = x / 2 in
-  match is_even x with
-  | true -> h
-  | false -> h + 1
-
-let e407 n =
-  let rec m a = 
-    if (a*a) mod n = a then
-      a
+let run () = 
+  let n= if (Array.length Sys.argv > 1) then
+      int_of_string Sys.argv.(1)
     else
-      m (a-1)
-  in
-  m (n-1)
+      Mod.run_default
+  in time (fun () -> Printf.printf "Answer: %d\n" @@ Mod.run n)
 
-let e407_loop () =
-  let tot = ref 0 in
-  let n = int_of_string Sys.argv.(1) in
-  for a = 1 to n do
-    let r = (e407 a) in
-    tot := !tot + r;
-    Printf.printf "M(%d) = %d\n" a r
-  done;
-  Printf.printf "ans = %d\n" !tot
-                       
-(* let run () = time e407_loop *)
+(* let run () = E407.e407_bench [1000; 10_000; 100_000] 
+
+   let run () = time (fun () -> E407.run size) *)
+
+
