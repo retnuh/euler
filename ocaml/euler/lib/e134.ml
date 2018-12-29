@@ -40,8 +40,19 @@ let connection p1 p2 =
 let%test _ = connection 19 23 = 1219
 let%test _ = connection 5 7 = 35
 
+(* See explanation below *)
+let connection_crt p1 p2 = 
+  let m2 = p2 in
+  let m1 =  Float.(of_int p1 |> log10 |> round_up |> to_int) |> Int.pow 10 in 
+  let m = m1*p2 in 
+  (p1 * m2 * mod_inv m2 m1) mod m
+
+
+let%test _ = connection_crt 19 23 = 1219
+let%test _ = connection_crt 5 7 = 35
+
 let e134 n = 
-  Sieve.primes_fold_upto ~start:7 ~init:(0, 5) n ~f:(fun (tot, prev) p -> (tot+connection prev p, p))
+  Sieve.primes_fold_upto ~start:7 ~init:(0, 5) n ~f:(fun (tot, prev) p -> (tot+connection_crt prev p, p))
 
 let run_default = 100
 let run n = 
@@ -53,4 +64,33 @@ Answer: 18613426663617118
 Execution time: 204.181386s
 
 Slowish, esp. for ocaml.  Guess it's too brute forcy?
+
+Interesting explanation about Chinese Remainder Theorem here:  
+https://projecteuler.net/thread=134;post=5279
+
+Very nice problem. I applied the Chinese reminder theorem.
+N is the number we are looking for, p1 and p2 are the consecutive primes and m1, m2 the relative prime moduluses such that:
+
+N = p1 mod m1
+N = 0 mod p2
+
+m1 is easily found with 10^ceiling(log10(p1)) and since the CRT states that:
+
+N = a1 * M1 * y1 + a2 * M2 * y2 (mod M)
+
+where M = m1 * m2, Mi = M/mi, yi = mod_inv(Mi, mi), a1 = p1 and a2=0.
+
+We achieve that:
+
+N = (p1 * m2 * mod_inv(m2, m1)) mod M
+The second addend is 0 since a2 = 0
+
+Using connection_crt:
+
+shiv:~/Dropbox/projects/clojure/euler/ocaml/euler $ dune exec bin/euler.exe 1000004
+Answer: 18613426663617118
+Execution time: 1.405769s
+
+Much faster!!
  *)
+
