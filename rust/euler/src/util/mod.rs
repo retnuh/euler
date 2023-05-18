@@ -80,7 +80,7 @@ fn test_digit_sum() {
     assert_eq!(10, digit_sum(19));
 }
 
-pub fn factors(n: u64) -> Vec<(u64, u8)> {
+pub fn factors(n: u64) -> Vec<(u64, usize)> {
     let mut vec = Vec::new();
     let mut cur = n;
     let mut primes = VecAddSieve::new();
@@ -107,6 +107,6 @@ pub fn factors(n: u64) -> Vec<(u64, u8)> {
 
 #[test]
 fn test_factors() {
-    assert_eq!(vec![(3_u64, 1_u8), (5, 2)], factors(75));
+    assert_eq!(vec![(3_u64, 1_usize), (5, 2)], factors(75));
     assert_eq!(vec![(53, 1)], factors(53));
 }
