@@ -1,5 +1,11 @@
+#![feature(test)]
+
+extern crate test;
+
 use euler::util::digit_sum;
 use num::Integer;
+
+use test::Bencher;
 
 fn main() {}
 
@@ -30,6 +36,26 @@ fn little_s(n: u64) -> u64 {
     let (d,r) = n.div_rem(&9);
     (r+1)*10u64.pow(d as u32) - 1
 }
+
+#[bench]
+fn e684_little_s_10000(b: &mut Bencher) {
+    b.iter(|| {
+        little_s(10000)
+    })
+}
+#[bench]
+fn e684_little_s_hk_10000(b: &mut Bencher) {
+    b.iter(|| {
+        little_s_hk(10000)
+    })
+}
+#[bench]
+fn e684_little_s_brute_10000(b: &mut Bencher) {
+    b.iter(|| {
+        little_s_brute(10000)
+    })
+}
+
 
 #[test]
 fn test_little_s() {

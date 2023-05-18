@@ -8,11 +8,11 @@ impl VecAddSieve {
 
     #[inline]
     fn check_cur_is_prime(&mut self) -> Option<u64> {
-        for (p, nm) in self.primes.iter_mut() {
-            while self.cur > *nm {
-                *nm += 2 * *p
+        for (number, next_multiple) in self.primes.iter_mut() {
+            while self.cur > *next_multiple {
+                *next_multiple += 2 * *number
             }
-            if self.cur == *nm {
+            if self.cur == *next_multiple {
                 return None;
             }
         }

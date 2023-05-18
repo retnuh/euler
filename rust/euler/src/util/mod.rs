@@ -1,6 +1,15 @@
+use std::time::SystemTime;
 use num::Integer;
 
 pub mod sieves;
+
+pub fn timeit<F: Fn() -> T, T>(f: F) -> (T, f64) {
+    let start = SystemTime::now();
+    let result = f();
+    let end = SystemTime::now();
+    let duration = end.duration_since(start).unwrap();
+    (result, duration.as_secs_f64())
+}
 
 pub fn fib(n: u32) -> u64 {
     let n: u64 = n as u64;
