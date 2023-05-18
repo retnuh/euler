@@ -26,8 +26,8 @@ fn e1(n: u64) -> u64 {
 // seconds:	0.000002
 fn main() {
     let (result, seconds) = timeit(|| e1(1000));
-    println!("sum:\t\t{}\t{}", 1000, result);
-    println!("seconds:\t{}", seconds)
+    println!("// sum:\t\t{}\t{}", 1000, result);
+    println!("// seconds:\t{}", seconds)
 }
 
 #[test]

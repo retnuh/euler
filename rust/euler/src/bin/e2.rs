@@ -15,12 +15,12 @@ fn e2(n: u64) -> u64 {
 // seconds:	0.000005
 fn main() {
     let (result, seconds) = timeit(|| e2(4_000_000));
-    println!("sum:\t\t{}\t{}", 4_000_000, result);
-    println!("seconds:\t{}", seconds)
+    println!("// sum:\t\t{}\t{}", 4_000_000, result);
+    println!("// seconds:\t{}", seconds)
 }
 
 #[test]
-fn test_e1() {
+fn test_e2() {
     assert_eq!(2 + 8 + 34, e2(100));
     assert_eq!(4613732, e2(4_000_000));
 }
