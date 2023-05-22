@@ -3,6 +3,7 @@ use num::integer::div_rem;
 use num::Integer;
 use std::time::SystemTime;
 
+pub mod formulae;
 pub mod sieves;
 
 pub fn timeit<F: Fn() -> T, T>(f: F) -> (T, f64) {
