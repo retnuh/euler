@@ -1,6 +1,6 @@
 use crate::util::sieves::VecAddSieve;
 use num::integer::div_rem;
-use num::Integer;
+use num::{pow, Integer};
 use std::time::SystemTime;
 
 pub mod formulae;
@@ -81,7 +81,9 @@ fn test_digit_sum() {
     assert_eq!(10, digit_sum(19));
 }
 
-pub fn factors(n: u64) -> Vec<(u64, usize)> {
+type Factors = Vec<(u64, usize)>;
+
+pub fn factors(n: u64) -> Factors {
     let mut vec = Vec::new();
     let mut cur = n;
     let mut primes = VecAddSieve::new();
@@ -110,4 +112,117 @@ pub fn factors(n: u64) -> Vec<(u64, usize)> {
 fn test_factors() {
     assert_eq!(vec![(3_u64, 1_usize), (5, 2)], factors(75));
     assert_eq!(vec![(53, 1)], factors(53));
+}
+
+fn iter_num_diophantine_solutions(
+    factors: Factors,
+    best_n_so_far: u64,
+    left_total_solns: u64,
+    left_total_product: u64,
+    index: usize,
+    target: u64,
+) -> Option<(Factors, u64)> {
+    if index >= factors.len() {
+        if left_total_solns > target && left_total_product < best_n_so_far {
+            // println!(
+            //     "New best end: {:?} {} {} {}",
+            //     factors, left_total, best_so_far, index
+            // );
+            return Some((factors, left_total_product));
+        }
+        // println!(
+        //     "Not best end: {:?} {} {} {}",
+        //     factors, left_total, best_so_far, index
+        // );
+        return None;
+    }
+    let (prime, start_count) = factors[index];
+    let other_totals = factors.iter().skip(index + 1).fold(
+        (left_total_solns, left_total_product),
+        |(ts, tp), &(p, c)| (ts * (2 * c + 1) as u64, tp * p),
+    );
+    let current_solns = other_totals.0 * (2 * start_count + 1) as u64;
+    if current_solns >= target {
+        if other_totals.1 * prime < best_n_so_far {
+            // println!(
+            //     "New best edge: {:?} {} {} {}",
+            //     factors, current, best_so_far, index
+            // );
+            return Some((factors, other_totals.1 * prime));
+        }
+        // println!(
+        //     "Not best edge: {:?} {} {} {}",
+        //     factors, current, best_so_far, index
+        // );
+        return None;
+    }
+    let mut count = start_count;
+    let mut best: Option<(Factors, u64)> = None;
+    while (count * 2 + 1) as u64 * other_totals.0 < target
+        && pow(prime, count) * other_totals.1 < best_n_so_far
+    {
+        count += 1;
+        let mut nf = factors.clone();
+        nf[index] = (prime, count);
+        match iter_num_diophantine_solutions(
+            nf,
+            best.as_ref().map_or(best_n_so_far, |(_, b)| *b),
+            left_total_solns * (count * 2 + 1) as u64,
+            left_total_product * pow(prime, count),
+            index + 1,
+            target,
+        ) {
+            None => {}
+            Some(b) => {
+                match &best {
+                    None => best = Some(b),
+                    Some((_, best_n)) => {
+                        if b.1 < *best_n {
+                            best = Some(b);
+                            // println!("New best rec: {:?} {} {} {}", best.0, count, best.1, index);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    best
+}
+
+pub fn min_factors_for_num_diophantine_solutions(solutions_exceed: u64) -> Factors {
+    let mut factors: Factors = Vec::new();
+    let mut primes = VecAddSieve::new();
+    let mut total_solns = 1;
+    let mut total_product = 1;
+    while total_solns < 2 * solutions_exceed {
+        let p = primes.next().unwrap();
+        total_solns *= 3;
+        total_product *= p;
+        factors.push((p, 1))
+    }
+    let mut best = (factors.clone(), total_product);
+    while !factors.is_empty() {
+        factors.pop();
+        match iter_num_diophantine_solutions(factors.clone(), best.1, 1, 1, 0, 2 * solutions_exceed)
+        {
+            None => {}
+            Some(candidate) => {
+                println!("Checking {:?} vs {:?}", candidate, best);
+                if candidate.1 < best.1 {
+                    println!("\tBetter!");
+                    best = candidate
+                }
+            }
+        }
+    }
+    best.0
+}
+
+#[test]
+fn test_min_factors_for_num_diophantine_solutions() {
+    assert_eq!(vec![(2, 2)], min_factors_for_num_diophantine_solutions(2));
+    assert_eq!(
+        vec![(2, 2), (3, 2), (5, 1), (7, 1), (11, 1), (13, 1)],
+        min_factors_for_num_diophantine_solutions(1000)
+    );
 }
