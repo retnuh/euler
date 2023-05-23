@@ -1,4 +1,5 @@
 use crate::util::sieves::VecAddSieve;
+use itertools::Itertools;
 use num::integer::div_rem;
 use num::{pow, Integer};
 use std::time::SystemTime;
@@ -225,4 +226,60 @@ fn test_min_factors_for_num_diophantine_solutions() {
         vec![(2, 2), (3, 2), (5, 1), (7, 1), (11, 1), (13, 1)],
         min_factors_for_num_diophantine_solutions(1000)
     );
+}
+
+pub fn all_split_positions(count: usize) -> impl Iterator<Item = Vec<usize>> {
+    // All the split positions for a string/vector like object
+    // i.e. for the string "abcde", all the positions needed to split
+    // the string in all possible ways, "a" + "bcde", "a" + "b" + "cde", etc.
+    (1..count).flat_map(move |i| (1..count).combinations(i))
+}
+
+#[test]
+fn test_all_split_positions() {
+    assert_eq!(
+        vec![] as Vec<Vec<usize>>,
+        all_split_positions(0).collect::<Vec<Vec<usize>>>()
+    );
+    assert_eq!(
+        vec![] as Vec<Vec<usize>>,
+        all_split_positions(1).collect::<Vec<Vec<usize>>>()
+    );
+    assert_eq!(
+        vec![vec![1]],
+        all_split_positions(2).collect::<Vec<Vec<usize>>>()
+    );
+    assert_eq!(
+        vec![vec![1], vec![2], vec![1, 2]],
+        all_split_positions(3).collect::<Vec<Vec<usize>>>()
+    );
+    assert_eq!(
+        vec![
+            vec![1],
+            vec![2],
+            vec![3],
+            vec![1, 2],
+            vec![1, 3],
+            vec![2, 3],
+            vec![1, 2, 3]
+        ],
+        all_split_positions(4).collect::<Vec<Vec<usize>>>()
+    );
+}
+
+pub fn all_string_splits<'a>(
+    s: &'a str,
+    positions: &'a Vec<Vec<usize>>,
+) -> impl Iterator<Item = Vec<&'a str>> {
+    // Assumes ascii tbh
+    positions.iter().map(move |split| {
+        let mut this_split: Vec<&str> = Vec::new();
+        let mut cur = 0;
+        for pos in split {
+            this_split.push(&s[cur..*pos]);
+            cur = *pos;
+        }
+        this_split.push(&s[cur..]);
+        this_split
+    })
 }

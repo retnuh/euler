@@ -14,4 +14,6 @@ path = "src/bin/whee.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+itertools = "0.10.5"
+memoize = "0.4.0"
 num = "0.4.0"
