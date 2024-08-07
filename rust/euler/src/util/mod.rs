@@ -283,3 +283,82 @@ pub fn all_string_splits<'a>(
         this_split
     })
 }
+
+// Euclid's algorithm
+pub fn euclid_gcd(mut a: u32, mut b: u32) -> u32 {
+    while b != 0 {
+        let temp = b;
+        b = a % b;
+        a = temp;
+    }
+    a
+}
+
+// Binary GCD (Stein's Algorithm)
+pub fn binary_gcd(mut a: u32, mut b: u32) -> u32 {
+    if a == 0 {
+        return b;
+    }
+    if b == 0 {
+        return a;
+    }
+
+    // Finding common factors of 2
+    let mut shift = 0;
+    while ((a | b) & 1) == 0 {
+        a >>= 1;
+        b >>= 1;
+        shift += 1;
+    }
+
+    while (a & 1) == 0 {
+        a >>= 1;
+    }
+
+    while b != 0 {
+        while (b & 1) == 0 {
+            b >>= 1;
+        }
+        if a > b {
+            std::mem::swap(&mut a, &mut b);
+        }
+        b = b - a;
+    }
+
+    a << shift
+}
+
+pub fn lcm(a: u32, b: u32) -> u32 {
+    let gcd = binary_gcd(a, b);
+    if gcd == 0 {
+        0
+    } else {
+        (a * b) / gcd
+    }
+}
+
+#[test]
+fn test_gcd() {
+    assert_eq!(binary_gcd(48, 18), 6);
+    assert_eq!(binary_gcd(54, 24), 6);
+    assert_eq!(binary_gcd(101, 103), 1);
+    assert_eq!(binary_gcd(0, 5), 5);
+    assert_eq!(binary_gcd(10, 0), 10);
+    assert_eq!(binary_gcd(0, 0), 0);
+    assert_eq!(euclid_gcd(48, 18), 6);
+    assert_eq!(euclid_gcd(54, 24), 6);
+    assert_eq!(euclid_gcd(101, 103), 1);
+    assert_eq!(euclid_gcd(0, 5), 5);
+    assert_eq!(euclid_gcd(10, 0), 10);
+    assert_eq!(euclid_gcd(0, 0), 0);
+}
+
+#[test]
+fn test_lcm() {
+    assert_eq!(lcm(48, 18), 144);
+    assert_eq!(lcm(54, 24), 216);
+    assert_eq!(lcm(101, 103), 10403);
+    assert_eq!(lcm(0, 5), 0); // LCM with zero is typically defined as 0
+    assert_eq!(lcm(10, 0), 0); // LCM with zero is typically defined as 0
+    assert_eq!(lcm(0, 0), 0); // LCM with zero is typically defined as 0
+}
