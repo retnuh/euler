@@ -1,0 +1,28 @@
+repos:
+  - repo: https://github.com/rust-lang/rustfmt
+    rev: 1.7.0 # or the latest stable rustfmt version
+    hooks:
+      - id: rustfmt-fix
+        name: Rustfmt (auto-fix)
+        entry: cargo fmt --all
+        language: system
+        types: [rust]
+
+  - repo: local
+    hooks:
+      - id: clippy-fix
+        name: Clippy (with auto-fixes)
+        entry: bash -c 'cargo clippy --fix --allow-dirty --allow-staged -- -D warnings'
+        language: system
+        types: [rust]
+
+      - id: cargo-check
+        name: Cargo check (fast compile validation)
+        entry: cargo check
+        language: system
+        types: [rust]
+
+      - id: cargo-deny
+        name: Cargo Deny (security/audit)
+        entry: cargo deny check
+        language: system
