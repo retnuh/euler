@@ -3,8 +3,19 @@ pub struct VecAddSieve {
     primes: Vec<(u64, u64)>,
 }
 
+impl Default for VecAddSieve {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl VecAddSieve {
-    pub fn new() -> VecAddSieve { VecAddSieve { cur: 3, primes: Vec::new() } }
+    pub fn new() -> VecAddSieve {
+        VecAddSieve {
+            cur: 3,
+            primes: Vec::new(),
+        }
+    }
 
     #[inline]
     fn check_cur_is_prime(&mut self) -> Option<u64> {
@@ -25,7 +36,7 @@ impl Iterator for VecAddSieve {
 
     #[inline]
     fn next(&mut self) -> Option<u64> {
-        if self.primes.len() == 0 {
+        if self.primes.is_empty() {
             self.primes.push((2, 4));
             Some(self.primes[0].0)
         } else {

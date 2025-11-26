@@ -1,11 +1,21 @@
-
 pub struct VecTightSieve {
     cur: u64,
     primes: Vec<u64>,
 }
 
+impl Default for VecTightSieve {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl VecTightSieve {
-    pub fn new() -> VecTightSieve { VecTightSieve { cur: 3, primes: Vec::new() } }
+    pub fn new() -> VecTightSieve {
+        VecTightSieve {
+            cur: 3,
+            primes: Vec::new(),
+        }
+    }
 }
 
 impl Iterator for VecTightSieve {
@@ -13,7 +23,7 @@ impl Iterator for VecTightSieve {
 
     #[inline]
     fn next(&mut self) -> Option<u64> {
-        if self.primes.len() == 0 {
+        if self.primes.is_empty() {
             self.primes.push(2);
             Some(self.primes[0])
         } else {
@@ -21,13 +31,13 @@ impl Iterator for VecTightSieve {
                 let is_prime: bool;
                 'inner: loop {
                     for p in self.primes.iter() {
-                        if self.cur % p == 0 {
+                        if self.cur.is_multiple_of(*p) {
                             is_prime = false;
                             break 'inner;
                         }
                     }
                     is_prime = true;
-                    break 'inner
+                    break 'inner;
                 }
                 if !is_prime {
                     self.cur += 2;
@@ -41,7 +51,6 @@ impl Iterator for VecTightSieve {
         }
     }
 }
-
 
 #[test]
 fn test_vec_tight_sieve() {

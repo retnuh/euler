@@ -6,6 +6,12 @@ pub struct ChainSieve {
     chain: ChainLink,
 }
 
+impl Default for ChainSieve {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ChainSieve {
     pub fn new() -> ChainSieve {
         ChainSieve {
@@ -17,8 +23,14 @@ impl ChainSieve {
 
 #[derive(Debug)]
 enum ChainLink {
-    Link { p: u64, nm: u64, link: Box<ChainLink> },
-    Bottom { val: u64 },
+    Link {
+        p: u64,
+        nm: u64,
+        link: Box<ChainLink>,
+    },
+    Bottom {
+        val: u64,
+    },
     Dummy,
 }
 
@@ -44,7 +56,7 @@ impl ChainLink {
                                 return Some(v);
                             }
                         }
-                        None => return None
+                        None => return None,
                     }
                 }
             }
@@ -52,15 +64,18 @@ impl ChainLink {
                 *val += 2;
                 Some(*val)
             }
-            ChainLink::Dummy => unreachable!()
+            ChainLink::Dummy => unreachable!(),
         }
     }
 
     fn link(p: u64, link: ChainLink) -> ChainLink {
-        ChainLink::Link { p, nm: 3 * p, link: Box::new(link) }
+        ChainLink::Link {
+            p,
+            nm: 3 * p,
+            link: Box::new(link),
+        }
     }
 }
-
 
 impl Iterator for ChainSieve {
     type Item = u64;
@@ -78,12 +93,11 @@ impl Iterator for ChainSieve {
                     self.chain = ChainLink::link(p, old);
                     Some(p)
                 }
-                None => None
+                None => None,
             }
         }
     }
 }
-
 
 #[test]
 fn test_chain_sieve() {

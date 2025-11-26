@@ -18,25 +18,17 @@ use euler::util::timeit;
 
 fn main() {
     // let (sum, seconds) = timeit(|| VecAddSieve::new().take_while(|x| *x < 2000000).sum::<u64>());
-    let (sum2, seconds2) = timeit(|| {
-        VecAddSieve::new()
-            .take_while(|x| *x < 2000000)
-            .fold(0, |x, y| x + y)
-    });
+    let (sum2, seconds2) = timeit(|| VecAddSieve::new().take_while(|x| *x < 2000000).sum::<u64>());
     println!("// sum VecAddSeive:\t{}", sum2);
     println!("// seconds VecAddSeive:\t{}", seconds2);
     let (sum3, seconds3) = timeit(|| {
         VecTightSieve::new()
             .take_while(|x| *x < 2000000)
-            .fold(0, |x, y| x + y)
+            .sum::<u64>()
     });
     println!("// sum VecTightSieve:\t{}", sum3);
     println!("// seconds VecTightSieve:\t{}", seconds3);
-    let (sum4, seconds4) = timeit(|| {
-        VecSieve::new()
-            .take_while(|x| *x < 2000000)
-            .fold(0, |x, y| x + y)
-    });
+    let (sum4, seconds4) = timeit(|| VecSieve::new().take_while(|x| *x < 2000000).sum::<u64>());
     println!("// sum VecSieve:\t{}", sum4);
     println!("// seconds VecSieve:\t{}", seconds4);
 }

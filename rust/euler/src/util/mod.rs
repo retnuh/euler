@@ -106,7 +106,7 @@ pub fn factors(n: u64) -> Factors {
     if count > 0 {
         vec.push((prime, count));
     }
-    return vec;
+    vec
 }
 
 #[test]
@@ -322,7 +322,7 @@ pub fn binary_gcd(mut a: u32, mut b: u32) -> u32 {
         if a > b {
             std::mem::swap(&mut a, &mut b);
         }
-        b = b - a;
+        b -= a;
     }
 
     a << shift

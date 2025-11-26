@@ -3,13 +3,24 @@ pub struct VecSieve {
     primes: Vec<u64>,
 }
 
+impl Default for VecSieve {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl VecSieve {
-    pub fn new() -> VecSieve { VecSieve { cur: 3, primes: Vec::new() } }
+    pub fn new() -> VecSieve {
+        VecSieve {
+            cur: 3,
+            primes: Vec::new(),
+        }
+    }
 
     #[inline]
     fn check_cur_is_prime(&mut self) -> Option<u64> {
         for p in self.primes.iter() {
-            if self.cur % p == 0 {
+            if self.cur.is_multiple_of(*p) {
                 return None;
             }
         }
@@ -22,7 +33,7 @@ impl Iterator for VecSieve {
 
     #[inline]
     fn next(&mut self) -> Option<u64> {
-        if self.primes.len() == 0 {
+        if self.primes.is_empty() {
             self.primes.push(2);
             Some(self.primes[0])
         } else {

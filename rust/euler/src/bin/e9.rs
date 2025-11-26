@@ -25,7 +25,7 @@ fn e9() -> (i64, i64, i64) {
 // abc = 31875000
 // seconds:	0.000003
 fn main() {
-    let ((a, b, c), seconds) = timeit(|| e9());
+    let ((a, b, c), seconds) = timeit(e9);
     println!("// a = {},\tb = {},\tc = {}", a, b, c);
     println!("// abc = {}", a * b * c);
     println!("// seconds:\t{}", seconds)
