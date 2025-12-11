@@ -15,5 +15,6 @@ path = "src/bin/whee.rs"
 
 [dependencies]
 cached = "0.53.1"
+factorial = "0.4.0"
 itertools = "0.13.0"
 num = "0.4.3"

@@ -4,6 +4,7 @@ use num::integer::div_rem;
 use num::{pow, Integer};
 use std::time::SystemTime;
 
+pub mod debug;
 pub mod formulae;
 pub mod sieves;
 
@@ -112,7 +113,20 @@ pub fn factors(n: u64) -> Factors {
 #[test]
 fn test_factors() {
     assert_eq!(vec![(3_u64, 1_usize), (5, 2)], factors(75));
+    assert_eq!(vec![(2_u64, 2_usize), (7, 1)], factors(28));
     assert_eq!(vec![(53, 1)], factors(53));
+}
+
+pub fn divisor_count(n: u64) -> u64 {
+    factors(n)
+        .iter()
+        .fold(1, |acc, (_, count)| acc * (*count as u64 + 1))
+}
+
+#[test]
+fn test_divisor_count() {
+    assert_eq!(4_u64, divisor_count(6));
+    assert_eq!(6_u64, divisor_count(28));
 }
 
 fn iter_num_diophantine_solutions(
