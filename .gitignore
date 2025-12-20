@@ -1,8 +1,8 @@
-/target
-/lib
-/classes
-/checkouts
-pom.xml
+clojure/target
+clojure/lib
+clojure/classes
+clojure/checkouts
+clojure/pom.xml
 *.jar
 *.class
 .lein-deps-sum
