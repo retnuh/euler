@@ -1,11 +1,12 @@
+use crate::util::naturals::Factors;
 use crate::util::sieves::VecAddSieve;
 use itertools::Itertools;
-use num::integer::div_rem;
 use num::{pow, Integer};
 use std::time::SystemTime;
 
 pub mod debug;
 pub mod formulae;
+pub mod naturals;
 pub mod sieves;
 
 pub fn timeit<F: Fn() -> T, T>(f: F) -> (T, f64) {
@@ -81,52 +82,6 @@ fn test_digit_sum() {
     assert_eq!(0, digit_sum(0));
     assert_eq!(3, digit_sum(111));
     assert_eq!(10, digit_sum(19));
-}
-
-type Factors = Vec<(u64, usize)>;
-
-pub fn factors(n: u64) -> Factors {
-    let mut vec = Vec::new();
-    let mut cur = n;
-    let mut primes = VecAddSieve::new();
-    let mut prime = primes.next().unwrap();
-    let mut count = 0;
-    while cur != 1 {
-        let (div, rem) = div_rem(cur, prime);
-        if rem != 0 {
-            if count > 0 {
-                vec.push((prime, count));
-                count = 0;
-            }
-            prime = primes.next().unwrap();
-            continue;
-        }
-        count += 1;
-        cur = div;
-    }
-    if count > 0 {
-        vec.push((prime, count));
-    }
-    vec
-}
-
-#[test]
-fn test_factors() {
-    assert_eq!(vec![(3_u64, 1_usize), (5, 2)], factors(75));
-    assert_eq!(vec![(2_u64, 2_usize), (7, 1)], factors(28));
-    assert_eq!(vec![(53, 1)], factors(53));
-}
-
-pub fn divisor_count(n: u64) -> u64 {
-    factors(n)
-        .iter()
-        .fold(1, |acc, (_, count)| acc * (*count as u64 + 1))
-}
-
-#[test]
-fn test_divisor_count() {
-    assert_eq!(4_u64, divisor_count(6));
-    assert_eq!(6_u64, divisor_count(28));
 }
 
 fn iter_num_diophantine_solutions(
@@ -375,4 +330,38 @@ fn test_lcm() {
     assert_eq!(lcm(0, 5), 0); // LCM with zero is typically defined as 0
     assert_eq!(lcm(10, 0), 0); // LCM with zero is typically defined as 0
     assert_eq!(lcm(0, 0), 0); // LCM with zero is typically defined as 0
+}
+
+pub fn n_choose_k(n: u64, k: u64) -> u64 {
+    if k > n {
+        panic!("k must be < n");
+    } else if k == 0 || k == n {
+        return 1;
+    } else if k == 1 || k == n - 1 {
+        return n;
+    }
+
+    let k = k.min(n - k); // symmetry
+
+    // Could theoretically start result at n and iterate from 2..=k but this
+    // maintains clarity
+    let mut result = 1u64;
+    for i in 1..=k {
+        result = result * (n + 1 - i) / i;
+    }
+
+    result
+}
+
+#[test]
+fn test_n_choose_k() {
+    assert_eq!(1, n_choose_k(4, 0));
+    assert_eq!(4, n_choose_k(4, 1));
+    assert_eq!(6, n_choose_k(4, 2));
+    assert_eq!(4, n_choose_k(4, 3));
+    assert_eq!(1, n_choose_k(4, 4));
+    assert_eq!(10, n_choose_k(5, 2));
+    assert_eq!(15, n_choose_k(6, 2));
+    assert_eq!(20, n_choose_k(6, 3));
+    assert_eq!(15, n_choose_k(6, 4));
 }

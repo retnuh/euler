@@ -1,5 +1,5 @@
 use euler::debug_println;
-use euler::util::divisor_count;
+use euler::util::naturals::divisor_count;
 use euler::util::timeit;
 
 fn e12(n: u64) -> u64 {

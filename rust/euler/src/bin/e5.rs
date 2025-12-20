@@ -2,7 +2,8 @@
 
 extern crate test;
 
-use euler::util::{factors, timeit};
+use euler::util::naturals::factors;
+use euler::util::timeit;
 use num::pow;
 
 fn e5(n: u64) -> u64 {

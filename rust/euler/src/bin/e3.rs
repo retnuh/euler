@@ -2,7 +2,8 @@
 
 extern crate test;
 
-use euler::util::{factors, timeit};
+use euler::util::naturals::factors;
+use euler::util::timeit;
 
 fn e3(n: u64) -> u64 {
     return factors(n)
