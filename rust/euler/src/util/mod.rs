@@ -2,7 +2,7 @@ use crate::util::naturals::Factors;
 use crate::util::sieves::VecAddSieve;
 use itertools::Itertools;
 use num::{pow, Integer};
-use std::time::SystemTime;
+use std::time::{Duration, SystemTime};
 
 pub mod debug;
 pub mod formulae;
@@ -15,6 +15,14 @@ pub fn timeit<F: Fn() -> T, T>(f: F) -> (T, f64) {
     let end = SystemTime::now();
     let duration = end.duration_since(start).unwrap();
     (result, duration.as_secs_f64())
+}
+
+pub fn timeit_duration<F: Fn() -> T, T>(f: F) -> (T, Duration) {
+    let start = SystemTime::now();
+    let result = f();
+    let end = SystemTime::now();
+    let duration = end.duration_since(start).unwrap();
+    (result, duration)
 }
 
 pub fn fib(n: u32) -> u64 {
