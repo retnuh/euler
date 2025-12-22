@@ -63,7 +63,7 @@ impl Iterator for NaturalNumbers {
         let current = self.current_number;
         self.current_number += 1;
         if current == 1 {
-            return Some(NaturalNumber::One);
+            Some(NaturalNumber::One)
         } else if current == 2 {
             self.primes.push((2, 4));
             Some(NaturalNumber::Prime(2))
@@ -74,7 +74,7 @@ impl Iterator for NaturalNumbers {
                 comp @ NaturalNumber::Composite { .. } => Some(comp),
                 prime @ NaturalNumber::Prime(p) => {
                     self.primes.push((p, 3 * p));
-                    return Some(prime);
+                    Some(prime)
                 }
                 NaturalNumber::Zero | NaturalNumber::One => {
                     panic!("Zero|One returned at impossible time")

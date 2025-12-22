@@ -17,7 +17,7 @@ fn e12(n: u64) -> u64 {
             return triangle_number;
         }
     }
-    return 0;
+    0
 }
 
 // val:		500	76576500

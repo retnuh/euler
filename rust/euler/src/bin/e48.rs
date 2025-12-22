@@ -1,7 +1,3 @@
-#![feature(test)]
-
-extern crate test;
-
 use euler::util::timeit;
 use num::{pow, BigInt, ToPrimitive};
 
