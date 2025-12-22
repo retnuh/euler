@@ -1,7 +1,4 @@
-#![feature(test)]
-
 extern crate core;
-extern crate test;
 
 use num::range_step;
 
@@ -15,7 +12,7 @@ fn is_palindrome(n: i64) -> bool {
             return false;
         }
     }
-    return true;
+    true
 }
 
 fn e4(from: i64, to: i64) -> i64 {
@@ -32,11 +29,11 @@ fn e4(from: i64, to: i64) -> i64 {
             }
         }
     }
-    return cur;
+    cur
 }
 
-// sum:		600851475143	906609
-// seconds:	0.278569
+// sum:         600851475143    906609
+// seconds:     0.015419
 fn main() {
     // e4(10, 99);
     let (result, seconds) = timeit(|| e4(100, 999));

@@ -10,9 +10,9 @@ fn e13<'a>(num_digits: usize, number_strings: impl Iterator<Item = &'a str>) -> 
     let mut sum: Vec<u8> = Vec::with_capacity(2 * nums[0].len());
     let mut tot: u64 = 0;
     for digit in 0..nums[0].len() {
-        for i in 0..nums.len() {
+        for v in &nums {
             // debug_println!("{digit} {i} {tot} {}", nums[i][digit]);
-            tot += nums[i][digit] as u64;
+            tot += v[digit] as u64;
         }
 
         let (t, d) = div_rem(tot, 10);

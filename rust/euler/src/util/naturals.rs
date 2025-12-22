@@ -124,17 +124,12 @@ fn test_natural_numbers() {
 
 pub type Factors = Vec<(u64, usize)>;
 
+#[derive(Default)]
 pub struct FactorsIter {
     natural_numbers: NaturalNumbers,
 }
 
 impl FactorsIter {
-    pub fn default() -> FactorsIter {
-        FactorsIter {
-            natural_numbers: NaturalNumbers::new_skip_one(),
-        }
-    }
-
     pub fn factors(&self, n: u64, first_prime_divisor: u64) -> Factors {
         factors_using_source(
             n,

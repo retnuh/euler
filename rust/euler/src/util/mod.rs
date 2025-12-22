@@ -246,7 +246,7 @@ fn test_all_split_positions() {
 
 pub fn all_string_splits<'a>(
     s: &'a str,
-    positions: &'a Vec<Vec<usize>>,
+    positions: &'a [Vec<usize>],
 ) -> impl Iterator<Item = Vec<&'a str>> {
     // Assumes ascii tbh
     positions.iter().map(move |split| {

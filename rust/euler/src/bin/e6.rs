@@ -1,7 +1,3 @@
-#![feature(test)]
-
-extern crate test;
-
 use euler::util::formulae::{sum_of_squares_upto, sum_upto};
 use euler::util::timeit;
 use num::pow;

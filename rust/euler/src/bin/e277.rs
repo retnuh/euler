@@ -1,13 +1,10 @@
+#![allow(dead_code)]
 use euler::util::timeit_duration;
 use imbl::{shared_ptr, GenericVector};
 use num::integer::div_rem;
-use std::collections::HashMap;
-
 // WIP still not enough
 // idea was to generate a matching sequence, but test shows that first ten of even the
 // test sample is not small enough, and generating 100 is taking ages
-
-type TheMap = HashMap<u64, (u64, char)>;
 
 type MyVector<T> = GenericVector<T, shared_ptr::RcK>;
 
@@ -98,29 +95,23 @@ fn e277_reverse(_threshold: u64, seq: &str) -> u64 {
     0
 }
 
-fn e277_brute(start: u64, seq: &str) -> (u64, TheMap) {
+fn e277_brute(start: u64, seq: &str) -> u64 {
     let seq: Vec<char> = seq.chars().collect();
-    fn modified_collatz(n: u64, _map: &mut TheMap) -> (u64, char) {
-        // if let Some(&v) = map.get(&n) {
-        //     return v;
-        // }
+    fn modified_collatz(n: u64) -> (u64, char) {
         let next = match n % 3 {
             0 => (n / 3, 'D'),
             1 => ((4 * n).div_ceil(3), 'U'),
             2 => ((2 * n - 1) / 3, 'd'),
             _ => panic!("Unreachable"),
         };
-        // map.insert(n, next);
         next
     }
-    let mut map = HashMap::new();
-    map.insert(1, (1, '.'));
 
     for x in (start + 1).. {
         let mut n = x;
         let mut i = 0;
         loop {
-            let (next, s) = modified_collatz(n, &mut map);
+            let (next, s) = modified_collatz(n);
             // println!("{n} {next} {s}");
             if seq[i] == s {
                 i += 1;
@@ -129,27 +120,26 @@ fn e277_brute(start: u64, seq: &str) -> (u64, TheMap) {
                 break;
             }
             if i == seq.len() {
-                return (x, map);
+                return x;
             }
         }
     }
     // Unreachable
-    (0, map)
+    0
 }
 
 fn main() {
     e277_reverse(10, "DdDddUUdDD");
 
-    // let n = 10_u64.pow(15);
-    // let (result, duration) = timeit_duration(|| e277_brute(n, "UDDDUdddDDUDDddDdDddDDUDDdUUDd"));
-    // println!("// val:\t\t10^15\t{}", result.0);
-    // println!("// seconds:\t{}", duration.as_secs_f32())
+    let n = 10_u64.pow(15);
+    let (result, duration) = timeit_duration(|| e277_brute(n, "UDDDUdddDDUDDddDdDddDDUDDdUUDd"));
+    println!("// val:\t\t10^15\t{}", result);
+    println!("// seconds:\t{}", duration.as_secs_f32())
 }
 
 #[test]
 fn test_e277() {
-    let ((first_term, _map), duration) =
-        timeit_duration(|| e277_brute(10_u64.pow(6), "DdDddUUdDD"));
+    let (first_term, duration) = timeit_duration(|| e277_brute(10_u64.pow(6), "DdDddUUdDD"));
     assert_eq!(1004064, first_term);
     println!("// val:\t\t10^6\t{}", duration.as_micros());
 }

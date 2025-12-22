@@ -1,10 +1,6 @@
-#![feature(test)]
 #![allow(dead_code)]
 
-extern crate test;
-
 use euler::util::timeit;
-use num::integer::div_rem;
 
 const MODULUS: u64 = 4503599627370517_u64;
 const ADDEND: u64 = 1504170715041707_u64;
@@ -52,7 +48,7 @@ fn e700(limit: usize) -> u64 {
         let n: u64 = prev % cur;
         println!("Found coin: {}\t{}\t{}", cur, n, cur - n);
         prev = cur;
-        cur = cur - n;
+        cur -= n;
         if prev <= 1 {
             break;
         }

@@ -1,5 +1,4 @@
-#![feature(test)]
-extern crate test;
+#![allow(dead_code)]
 
 use euler::util::timeit;
 use itertools::Itertools;
@@ -34,14 +33,11 @@ fn e142() -> (u64, u64, u64) {
             .iter()
             .permutations(5)
             .find(|v| constraints(a, *v[0], *v[1], *v[2], *v[3], *v[4]));
-        match res {
-            Some(v) => {
-                let x = (a + v[0]) / 2;
-                let z = (v[3] - v[4]) / 2;
-                let y = a - x;
-                return (x, y, z);
-            }
-            None => {}
+        if let Some(v) = res {
+            let x = (a + v[0]) / 2;
+            let z = (v[3] - v[4]) / 2;
+            let y = a - x;
+            return (x, y, z);
         }
         squares.push(x);
         x += 1;
@@ -79,7 +75,7 @@ fn e142() -> (u64, u64, u64) {
 // }
 
 fn main() {
-    let ((x, y, z), seconds) = timeit(|| e142());
+    let ((x, y, z), seconds) = timeit(e142);
     println!("// ans = {}", x + y + z);
     println!("// x: {}\t, y: {}\tz: {}", x, y, z);
     println!("// seconds:\t{}", seconds)

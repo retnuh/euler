@@ -58,7 +58,7 @@ impl Iterator for VecAddSieve {
 
 #[test]
 fn test_vec_add_sieve() {
-    assert_eq!(Some(2), VecAddSieve::new().nth(0));
+    assert_eq!(Some(2), VecAddSieve::new().next());
     assert_eq!(Some(3), VecAddSieve::new().nth(1));
     assert_eq!(Some(5), VecAddSieve::new().nth(2));
     assert_eq!(Some(7), VecAddSieve::new().nth(3));

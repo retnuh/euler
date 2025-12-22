@@ -1,0 +1,18 @@
+repos:
+  - repo: local
+    hooks:
+      - id: rustfmt
+        name: rustfmt
+        entry: bash -c 'cd rust/euler && cargo fmt --all'
+        language: system
+        types: [rust]
+        pass_filenames: false
+        files: ^rust/euler/
+      
+      - id: clippy
+        name: clippy
+        entry: cargo clippy --fix --allow-dirty --allow-staged --lib --bins --tests --all-features --manifest-path=rust/euler/Cargo.toml -- -D warnings
+        language: system
+        types: [rust]
+        pass_filenames: false
+        files: ^rust/euler/

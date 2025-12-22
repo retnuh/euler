@@ -1,3 +1,4 @@
+#![cfg_attr(not(nightly), allow(internal_features))]
 #![feature(test)]
 
 extern crate test;

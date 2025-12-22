@@ -1,7 +1,3 @@
-#![feature(test)]
-
-extern crate test;
-
 use euler::util::timeit;
 
 fn e1(n: u64) -> u64 {
@@ -19,7 +15,7 @@ fn e1(n: u64) -> u64 {
         }
         i += 15;
     }
-    return tot;
+    tot
 }
 
 // sum:		1000	233168

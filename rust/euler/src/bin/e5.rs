@@ -1,14 +1,10 @@
-#![feature(test)]
-
-extern crate test;
-
 use euler::util::naturals::factors;
 use euler::util::timeit;
 use num::pow;
 
 fn e5(n: u64) -> u64 {
     // figure out the max power for each prime in the range, then multiply it all out
-    let mut x: Vec<(u64, usize)> = (2..=n).flat_map(|x| factors(x)).collect();
+    let mut x: Vec<(u64, usize)> = (2..=n).flat_map(factors).collect();
     x.sort_unstable();
     // dedup_by takes first elt, want highest power, so reverse first
     x.reverse();

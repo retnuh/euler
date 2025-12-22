@@ -28,16 +28,12 @@ impl Iterator for VecTightSieve {
             Some(self.primes[0])
         } else {
             loop {
-                let is_prime: bool;
-                'inner: loop {
-                    for p in self.primes.iter() {
-                        if self.cur.is_multiple_of(*p) {
-                            is_prime = false;
-                            break 'inner;
-                        }
+                let mut is_prime: bool = true;
+                for p in self.primes.iter() {
+                    if self.cur.is_multiple_of(*p) {
+                        is_prime = false;
+                        break;
                     }
-                    is_prime = true;
-                    break 'inner;
                 }
                 if !is_prime {
                     self.cur += 2;
@@ -54,7 +50,7 @@ impl Iterator for VecTightSieve {
 
 #[test]
 fn test_vec_tight_sieve() {
-    assert_eq!(Some(2), VecTightSieve::new().nth(0));
+    assert_eq!(Some(2), VecTightSieve::new().next());
     assert_eq!(Some(3), VecTightSieve::new().nth(1));
     assert_eq!(Some(5), VecTightSieve::new().nth(2));
     assert_eq!(Some(7), VecTightSieve::new().nth(3));

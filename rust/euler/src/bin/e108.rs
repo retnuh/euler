@@ -1,7 +1,3 @@
-#![feature(test)]
-
-extern crate test;
-
 use euler::util::{min_factors_for_num_diophantine_solutions, timeit};
 use num::pow;
 

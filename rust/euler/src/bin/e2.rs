@@ -1,14 +1,10 @@
-#![feature(test)]
-
-extern crate test;
-
 use euler::util::{fib_iter, timeit};
 
 fn e2(n: u64) -> u64 {
-    return fib_iter()
+    fib_iter()
         .take_while(|x| *x <= n)
         .filter(|x| x % 2 == 0)
-        .sum();
+        .sum()
 }
 
 // sum:		4000000	4613732

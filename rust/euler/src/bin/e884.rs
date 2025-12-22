@@ -1,8 +1,3 @@
-#![feature(test)]
-#![feature(iter_collect_into)]
-
-extern crate test;
-
 // use memoize::memoize;
 // use std::cmp::min;
 
@@ -27,7 +22,7 @@ fn s(upper: u64, upto: usize, cubes: &Vec<u64>) -> u64 {
 fn e884(upper: u64) -> u64 {
     let highest_cube_root = cbrt(upper - 1);
     let cubes = cubes(highest_cube_root);
-    let highest_cube = *&cubes[(highest_cube_root - 1) as usize];
+    let highest_cube = cubes[(highest_cube_root - 1) as usize];
     let repeated_sum = s(highest_cube + 1, highest_cube_root as usize, &cubes);
     let (div, rem) = (upper - 1).div_rem(&highest_cube);
     let partial_sum = s(rem + 1, highest_cube_root as usize, &cubes);
@@ -55,7 +50,7 @@ fn d(initial_n: u64, cubes: &Vec<u64>, largest: usize) -> u64 {
             Err(index) => {
                 assert!(*index > 0);
                 let nearest_cube = &cubes[*index - 1];
-                steps += d(rem - *nearest_cube, &cubes, *index + 1)
+                steps += d(rem - *nearest_cube, cubes, *index + 1)
             }
         }
     }

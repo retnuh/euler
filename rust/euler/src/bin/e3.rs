@@ -1,16 +1,12 @@
-#![feature(test)]
-
-extern crate test;
-
 use euler::util::naturals::factors;
 use euler::util::timeit;
 
 fn e3(n: u64) -> u64 {
-    return factors(n)
+    factors(n)
         .iter()
         .max_by(|&&(x, _), &&(y, _)| x.cmp(&y))
         .unwrap()
-        .0;
+        .0
 }
 
 // sum:		600851475143	6857

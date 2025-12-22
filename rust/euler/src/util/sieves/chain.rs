@@ -101,7 +101,7 @@ impl Iterator for ChainSieve {
 
 #[test]
 fn test_chain_sieve() {
-    assert_eq!(Some(2), ChainSieve::new().nth(0));
+    assert_eq!(Some(2), ChainSieve::new().next());
     assert_eq!(Some(3), ChainSieve::new().nth(1));
     assert_eq!(Some(5), ChainSieve::new().nth(2));
     assert_eq!(Some(7), ChainSieve::new().nth(3));

@@ -1,7 +1,3 @@
-#![feature(test)]
-
-extern crate test;
-
 use euler::util::sieves::VecAddSieve;
 use euler::util::timeit;
 

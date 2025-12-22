@@ -1,8 +1,3 @@
-#![feature(test)]
-#![feature(iter_collect_into)]
-
-extern crate test;
-
 use euler::util::{all_split_positions, all_string_splits, timeit};
 use itertools::Itertools;
 use num::integer::{div_rem, sqrt};
@@ -24,7 +19,7 @@ fn g(s: u64, n: u64) -> bool {
     }
     let limit = (s.ilog10() + 1) as usize;
     // println!("s:\t{}\tn:\t{}\tlimit:{}", s, n, limit);
-    for i in 1..limit as usize {
+    for i in 1..limit {
         let (d, r) = div_rem(s, pow(10, i));
         // println!("\t{}\t{}\t{}", i, d, r);
         if r > n {
