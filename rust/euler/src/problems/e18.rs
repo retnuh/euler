@@ -68,3 +68,9 @@ fn test_maximum_path_sum() {
     "};
     assert_eq!(23, maximum_path_sum(sample));
 }
+
+static E18_DATA: &str = include_str!("resources/e18.txt");
+
+pub fn main() {
+    maximum_path_sum(E18_DATA);
+}

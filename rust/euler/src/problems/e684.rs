@@ -68,3 +68,5 @@ fn test_little_s() {
         MODULO_FACTOR / neg_md
     );
 }
+
+pub fn main() {}

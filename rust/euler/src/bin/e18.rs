@@ -2,7 +2,7 @@ use euler::util::timeit_duration;
 
 use euler::problems::e18;
 
-static E18_DATA: &str = include_str!("resources/e18.txt");
+static E18_DATA: &str = include_str!("../problems/resources/e18.txt");
 
 // val:         1074
 // duration:    59µs
