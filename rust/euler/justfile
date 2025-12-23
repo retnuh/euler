@@ -3,3 +3,6 @@ clippy:
 
 run problem:
     cargo run --bin {{ problem }} --release
+
+bench benchmark="":
+    @{{ if benchmark != "" { "cargo +nightly bench --bench " + benchmark } else { "cargo +nightly bench" } }}
