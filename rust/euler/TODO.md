@@ -8,5 +8,7 @@
     - use claude to refactor existing binaries to problems mod and update appropriately
     - consistent duration printing
     - have harness update actual source comments with the output (i.e. value and duration comments)
+    - insert build type (release, etc) and maybe compiler ... kind? version? (stable, nightly, etc)
+        - https://claude.ai/chat/b32157bb-11b1-4c13-a984-1a3c22f557c2
 - look over old ocaml guys, WIP in particular to see if can do
 - consider porting some of the old ocaml guys to get a feel for rust impl
