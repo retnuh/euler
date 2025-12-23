@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+use crate::debug_println;
 #[cfg(test)]
 use crate::util::timeit_duration;
 use imbl::{shared_ptr, GenericVector};
@@ -89,7 +90,7 @@ fn e277_reverse(_threshold: u64, seq: &str) -> u64 {
                 'd' => (i * 3 + 1) / 2,
                 _ => panic!("Unreachable: {c}"),
             };
-            println!("{i}:\t{c}\t{next}");
+            debug_println!("{i}:\t{c}\t{next}");
         }
     }
 
@@ -139,7 +140,7 @@ pub fn main() -> String {
 fn test_e277() {
     let (first_term, duration) = timeit_duration(|| e277_brute(10_u64.pow(6), "DdDddUUdDD"));
     assert_eq!(1004064, first_term);
-    println!("// val:\t\t10^6\t{}", duration.as_micros());
+    debug_println!("// val:\t\t10^6\t{}", duration.as_micros());
 }
 
 #[test]
@@ -153,7 +154,7 @@ fn test_e277_generate() {
     let x: Vec<(u64, String)> = ModifiedCollatzGeneratorIter::new("DdDddUUdDD", 10_u64.pow(6))
         .take(100)
         .collect();
-    println!("{x:#?}");
+    debug_println!("{x:#?}");
     assert_eq!(
         (1004064, "DdDddUUdDDDdUDUUUdDdUUDDDUdDD".to_string()),
         *x.iter().min().unwrap(),

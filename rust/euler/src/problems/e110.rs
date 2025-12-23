@@ -1,9 +1,10 @@
+use crate::debug_println;
 use crate::util::min_factors_for_num_diophantine_solutions;
 use num::pow;
 
 fn e110(solutions_exceed: u64) -> u64 {
     let x = min_factors_for_num_diophantine_solutions(solutions_exceed);
-    println!("Found: {:?}", x);
+    debug_println!("Found: {:?}", x);
     x.iter().fold(1, |tot, &(p, c)| tot * pow(p, c))
 }
 

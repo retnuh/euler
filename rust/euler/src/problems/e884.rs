@@ -2,6 +2,8 @@
 // use std::cmp::min;
 
 // use cached::proc_macro::cached;
+#[cfg(test)]
+use crate::debug_println;
 use num::integer::cbrt;
 use num::{pow, Integer};
 
@@ -77,9 +79,9 @@ fn test_e884() {
     // assert_eq!(1, d(64, &cubes, 4));
     // assert_eq!(512, s(100, 4, &cubes));
     let s_val = s(26, 4, &cubes);
-    println!("s(26):\t{}", s_val);
+    debug_println!("s(26):\t{}", s_val);
     let e_val = e884(26);
-    println!("e884(26):\t{}", e_val);
+    debug_println!("e884(26):\t{}", e_val);
     assert_eq!(512, e884(100));
     assert_eq!(s_val, e_val);
 }

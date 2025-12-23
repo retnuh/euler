@@ -42,19 +42,19 @@ fn test_little_s() {
         assert_eq!(little_s_brute(i), little_s(i))
     }
     let x = 81;
-    println!(
+    debug_println!(
         "s:\t{}\t{}\t{}",
         x,
         little_s(x),
         little_s(x) % MODULO_FACTOR
     );
-    println!(
+    debug_println!(
         "s:\t{}\t{}\t{}",
         x + 1,
         little_s(x + 1),
         little_s(x + 1) % MODULO_FACTOR
     );
-    println!(
+    debug_println!(
         "s:\t{}\t{}\t{}",
         x + 2,
         little_s(x + 2),
@@ -63,7 +63,7 @@ fn test_little_s() {
     let diff = little_s(x + 1) - little_s(x);
     let md = diff % MODULO_FACTOR;
     let neg_md = MODULO_FACTOR - md;
-    println!(
+    debug_println!(
         "s diff:\t{}\t{}\t-{}\t{}\t{}",
         diff,
         md,

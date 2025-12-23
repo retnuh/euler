@@ -1,3 +1,4 @@
+use crate::debug_println;
 use crate::util::naturals::Factors;
 use crate::util::sieves::VecAddSieve;
 use itertools::Itertools;
@@ -185,9 +186,9 @@ pub fn min_factors_for_num_diophantine_solutions(solutions_exceed: u64) -> Facto
         {
             None => {}
             Some(candidate) => {
-                println!("Checking {:?} vs {:?}", candidate, best);
+                debug_println!("Checking {:?} vs {:?}", candidate, best);
                 if candidate.1 < best.1 {
-                    println!("\tBetter!");
+                    debug_println!("\tBetter!");
                     best = candidate
                 }
             }

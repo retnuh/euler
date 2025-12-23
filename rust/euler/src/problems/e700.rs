@@ -1,5 +1,7 @@
 #![allow(dead_code)]
 
+use crate::debug_println;
+
 const MODULUS: u64 = 4503599627370517_u64;
 const ADDEND: u64 = 1504170715041707_u64;
 
@@ -44,7 +46,7 @@ fn e700(limit: usize) -> u64 {
     loop {
         sum += cur;
         let n: u64 = prev % cur;
-        println!("Found coin: {}\t{}\t{}", cur, n, cur - n);
+        debug_println!("Found coin: {}\t{}\t{}", cur, n, cur - n);
         prev = cur;
         cur -= n;
         if prev <= 1 {

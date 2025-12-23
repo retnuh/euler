@@ -1,3 +1,4 @@
+use crate::debug_println;
 use crate::util::{all_split_positions, all_string_splits};
 use itertools::Itertools;
 use num::integer::{div_rem, sqrt};
@@ -65,7 +66,7 @@ fn e719_orig(upper: u64) -> u64 {
         let s = n * n;
         let s_string = s.to_string();
         if s_string.len() != cached_s_size {
-            println!("Realloc split pos");
+            debug_println!("Realloc split pos");
             cached_split_posns = all_split_positions(s_string.len()).collect();
             cached_s_size = s_string.len();
         }
