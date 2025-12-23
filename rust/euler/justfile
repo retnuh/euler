@@ -1,0 +1,5 @@
+clippy:
+    cargo clippy --fix --allow-dirty --allow-staged --lib --bins --tests --all-features
+
+run problem:
+    cargo run --bin {{ problem }} --release

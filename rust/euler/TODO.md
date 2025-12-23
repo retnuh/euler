@@ -1,0 +1,12 @@
+- finish e277
+- mark all WIP problems clearly
+- use new congruence superpowers to see if can solve any of the WIP
+- Make generic running harness
+    - see if can create a registry in problems module
+    - write macro to do register and propagate pub mod blah blah
+        - https://claude.ai/chat/8a73184d-680d-48cb-9c99-77f0c3888889
+    - use claude to refactor existing binaries to problems mod and update appropriately
+    - consistent duration printing
+    - have harness update actual source comments with the output (i.e. value and duration comments)
+- look over old ocaml guys, WIP in particular to see if can do
+- consider porting some of the old ocaml guys to get a feel for rust impl
