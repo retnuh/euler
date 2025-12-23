@@ -1,4 +1,4 @@
-use euler::util::{fib_iter, timeit};
+use crate::util::fib_iter;
 
 fn e2(n: u64) -> u64 {
     fib_iter()
@@ -9,10 +9,9 @@ fn e2(n: u64) -> u64 {
 
 // sum:		4000000	4613732
 // seconds:	0.000005
-fn main() {
-    let (result, seconds) = timeit(|| e2(4_000_000));
-    println!("// sum:\t\t{}\t{}", 4_000_000, result);
-    println!("// seconds:\t{}", seconds)
+pub fn main() -> String {
+    let result = e2(4_000_000);
+    format!("sum:\t\t{}\t{}", 4_000_000, result)
 }
 
 #[test]

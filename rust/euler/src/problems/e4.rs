@@ -2,8 +2,6 @@ extern crate core;
 
 use num::range_step;
 
-use euler::util::timeit;
-
 fn is_palindrome(n: i64) -> bool {
     let sn: Vec<char> = n.to_string().chars().collect();
     let len = sn.len();
@@ -34,11 +32,9 @@ fn e4(from: i64, to: i64) -> i64 {
 
 // sum:         600851475143    906609
 // seconds:     0.015419
-fn main() {
-    // e4(10, 99);
-    let (result, seconds) = timeit(|| e4(100, 999));
-    println!("// sum:\t\t{}\t{}", 600851475143_u64, result);
-    println!("// seconds:\t{}", seconds)
+pub fn main() -> String {
+    let result = e4(100, 999);
+    format!("val:\t\t{}\t{}\t{}", 100, 999, result)
 }
 
 #[test]

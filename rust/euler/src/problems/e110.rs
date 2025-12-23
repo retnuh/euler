@@ -1,4 +1,4 @@
-use euler::util::{min_factors_for_num_diophantine_solutions, timeit};
+use crate::util::min_factors_for_num_diophantine_solutions;
 use num::pow;
 
 fn e110(solutions_exceed: u64) -> u64 {
@@ -9,11 +9,10 @@ fn e110(solutions_exceed: u64) -> u64 {
 
 // n:		4000000	9350130049860600
 // seconds:	0.049693
-fn main() {
+pub fn main() -> String {
     // Same as e108 but bigger # solutions
-    let (result, seconds) = timeit(|| e110(4_000_000));
-    println!("// n:\t\t{}\t{}", 4_000_000, result);
-    println!("// seconds:\t{}", seconds)
+    let result = e110(4_000_000);
+    format!("n:\t\t{}\t{}", 4_000_000, result)
 }
 
 #[test]

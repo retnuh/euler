@@ -1,5 +1,3 @@
-use euler::util::timeit;
-
 fn e1(n: u64) -> u64 {
     let mut tot = 0;
     let mut i = 3;
@@ -20,10 +18,9 @@ fn e1(n: u64) -> u64 {
 
 // sum:		1000	233168
 // seconds:	0.000002
-fn main() {
-    let (result, seconds) = timeit(|| e1(1000));
-    println!("// sum:\t\t{}\t{}", 1000, result);
-    println!("// seconds:\t{}", seconds)
+pub fn main() -> String {
+    let result = e1(1000);
+    format!("sum:\t\t{}\t{}", 1000, result)
 }
 
 #[test]

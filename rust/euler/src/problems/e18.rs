@@ -71,6 +71,9 @@ fn test_maximum_path_sum() {
 
 static E18_DATA: &str = include_str!("resources/e18.txt");
 
-pub fn main() {
-    maximum_path_sum(E18_DATA);
+// val:         1074
+// duration:    59µs
+pub fn main() -> String {
+    let result = maximum_path_sum(E18_DATA);
+    format!("val:\t\t{}", result)
 }

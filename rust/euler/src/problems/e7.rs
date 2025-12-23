@@ -1,5 +1,4 @@
-use euler::util::sieves::VecAddSieve;
-use euler::util::timeit;
+use crate::util::sieves::VecAddSieve;
 
 fn e7(n: usize) -> u64 {
     VecAddSieve::new().nth(n - 1).unwrap()
@@ -7,10 +6,9 @@ fn e7(n: usize) -> u64 {
 
 // nth prime:		10001	104743
 // seconds:	0.49628
-fn main() {
-    let (result, seconds) = timeit(|| e7(10001));
-    println!("// nth prime:\t\t{}\t{}", 10001, result);
-    println!("// seconds:\t{}", seconds)
+pub fn main() -> String {
+    let result = e7(10001);
+    format!("nth prime:\t\t{}\t{}", 10001, result)
 }
 
 #[test]

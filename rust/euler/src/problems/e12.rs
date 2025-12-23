@@ -1,6 +1,5 @@
-use euler::debug_println;
-use euler::util::naturals::divisor_count;
-use euler::util::timeit;
+use crate::debug_println;
+use crate::util::naturals::divisor_count;
 
 fn e12(n: u64) -> u64 {
     let naturals = 1_u64..;
@@ -22,10 +21,9 @@ fn e12(n: u64) -> u64 {
 
 // val:		500	76576500
 // seconds:	0.59765
-fn main() {
-    let (result, seconds) = timeit(|| e12(500));
-    println!("// val:\t\t{}\t{}", 500, result);
-    println!("// seconds:\t{}", seconds)
+pub fn main() -> String {
+    let result = e12(500);
+    format!("val:\t\t{}\t{}", 500, result)
 }
 
 #[test]

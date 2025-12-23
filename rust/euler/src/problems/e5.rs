@@ -1,5 +1,4 @@
-use euler::util::naturals::factors;
-use euler::util::timeit;
+use crate::util::naturals::factors;
 use num::pow;
 
 fn e5(n: u64) -> u64 {
@@ -17,10 +16,9 @@ fn e5(n: u64) -> u64 {
 
 // sum:		20	232792560
 // seconds:	0.000099
-fn main() {
-    let (result, seconds) = timeit(|| e5(20));
-    println!("// sum:\t\t{}\t{}", 20, result);
-    println!("// seconds:\t{}", seconds)
+pub fn main() -> String {
+    let result = e5(20);
+    format!("sum:\t\t{}\t{}", 20, result)
 }
 
 #[test]

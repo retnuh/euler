@@ -21,5 +21,8 @@ indoc = "2.0.7"
 itertools = "0.14.0"
 num = "0.4.3"
 
+[build-dependencies]
+built = "0.7"
+
 [features]
 nightly = []

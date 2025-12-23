@@ -5,8 +5,6 @@
 use num::integer::cbrt;
 use num::{pow, Integer};
 
-use euler::util::timeit;
-
 fn cubes(largest: u64) -> Vec<u64> {
     let mut numbers: Vec<u64> = Vec::with_capacity(largest as usize);
     for i in 1..=largest {
@@ -60,11 +58,10 @@ fn d(initial_n: u64, cubes: &Vec<u64>, largest: usize) -> u64 {
 
 // T(1000000000000):		128088830547982
 // seconds:	2.272181
-fn main() {
+pub fn main() -> String {
     let n = pow(10, 17);
-    let (result, seconds) = timeit(|| e884(n));
-    println!("// S({}):\t{}", n, result);
-    println!("// seconds:\t{}", seconds)
+    let result = e884(n);
+    format!("S({}):\t{}", n, result)
 }
 
 #[test]

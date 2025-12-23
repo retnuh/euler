@@ -1,4 +1,3 @@
-use euler::util::timeit;
 use num::{pow, BigInt, ToPrimitive};
 
 fn e48(n: usize, chop: usize) -> u64 {
@@ -14,12 +13,10 @@ fn e48(n: usize, chop: usize) -> u64 {
 // input:		1000
 // answer:		9110846700
 // seconds:	0.017014
-fn main() {
+pub fn main() -> String {
     let input = 1000;
-    let (result, seconds) = timeit(|| e48(input, 10));
-    println!("// input:\t\t{}", input);
-    println!("// answer:\t\t{}", result);
-    println!("// seconds:\t{}", seconds)
+    let result = e48(input, 10);
+    format!("input:\t\t{}\nanswer:\t\t{}", input, result)
 }
 
 #[test]

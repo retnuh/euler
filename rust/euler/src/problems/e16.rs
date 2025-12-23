@@ -1,4 +1,3 @@
-use euler::util::timeit;
 use num::{BigUint, FromPrimitive};
 
 fn e16(p: u32) -> u64 {
@@ -13,12 +12,10 @@ fn e16(p: u32) -> u64 {
 // pow:         1000
 // answer:      1366
 // seconds:     0.000021
-fn main() {
+pub fn main() -> String {
     let input = 1000;
-    let (result, seconds) = timeit(|| e16(input));
-    println!("// pow:\t\t{}", input);
-    println!("// answer:\t{}", result);
-    println!("// seconds:\t{}", seconds)
+    let result = e16(input);
+    format!("pow:\t\t{}\nanswer:\t{}", input, result)
 }
 
 #[test]

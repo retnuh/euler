@@ -1,5 +1,4 @@
-use euler::util::formulae::{sum_of_squares_upto, sum_upto};
-use euler::util::timeit;
+use crate::util::formulae::{sum_of_squares_upto, sum_upto};
 use num::pow;
 
 fn e6(n: u64) -> u64 {
@@ -8,10 +7,9 @@ fn e6(n: u64) -> u64 {
 
 // sum:		100	25164150
 // seconds:	0.000001
-fn main() {
-    let (result, seconds) = timeit(|| e6(100));
-    println!("// sum:\t\t{}\t{}", 100, result);
-    println!("// seconds:\t{}", seconds)
+pub fn main() -> String {
+    let result = e6(100);
+    format!("sum:\t\t{}\t{}", 100, result)
 }
 
 #[test]

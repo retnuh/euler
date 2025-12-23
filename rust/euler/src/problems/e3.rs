@@ -1,5 +1,4 @@
-use euler::util::naturals::factors;
-use euler::util::timeit;
+use crate::util::naturals::factors;
 
 fn e3(n: u64) -> u64 {
     factors(n)
@@ -11,10 +10,9 @@ fn e3(n: u64) -> u64 {
 
 // sum:		600851475143	6857
 // seconds:	0.004301
-fn main() {
-    let (result, seconds) = timeit(|| e3(600851475143));
-    println!("// sum:\t\t{}\t{}", 600851475143_u64, result);
-    println!("// seconds:\t{}", seconds)
+pub fn main() -> String {
+    let result = e3(600851475143);
+    format!("sum:\t\t{}\t{}", 600851475143_u64, result)
 }
 
 #[test]

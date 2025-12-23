@@ -1,4 +1,3 @@
-use euler::util::timeit_duration;
 use num::integer::div_rem;
 
 static E13_DATA: &str = include_str!("resources/e13.txt");
@@ -37,10 +36,9 @@ fn e13<'a>(num_digits: usize, number_strings: impl Iterator<Item = &'a str>) -> 
 
 // val:         5537376230
 // nanoseconds: 9000
-fn main() {
-    let (result, duration) = timeit_duration(|| e13(10, E13_DATA.split_ascii_whitespace()));
-    println!("// val:\t\t{}", result);
-    println!("// nanoseconds:\t{}", duration.as_nanos())
+pub fn main() -> String {
+    let result = e13(10, E13_DATA.split_ascii_whitespace());
+    format!("val:\t\t{}", result)
 }
 
 #[test]

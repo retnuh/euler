@@ -1,4 +1,4 @@
-use euler::util::{all_split_positions, all_string_splits, timeit};
+use crate::util::{all_split_positions, all_string_splits};
 use itertools::Itertools;
 use num::integer::{div_rem, sqrt};
 use num::iter::range_step_from;
@@ -87,11 +87,10 @@ fn e719_orig(upper: u64) -> u64 {
 
 // T(1000000000000):		128088830547982
 // seconds:	2.272181
-fn main() {
+pub fn main() -> String {
     let n = pow(10, 12);
-    let (result, seconds) = timeit(|| e719(n));
-    println!("// T({}):\t\t{}", n, result);
-    println!("// seconds:\t{}", seconds)
+    let result = e719(n);
+    format!("T({}):\t\t{}", n, result)
 }
 
 #[test]

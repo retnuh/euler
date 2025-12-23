@@ -1,6 +1,5 @@
 #![allow(dead_code)]
 
-use euler::util::timeit;
 use itertools::Itertools;
 // use num::ToPrimitive;
 
@@ -74,9 +73,7 @@ fn e142() -> (u64, u64, u64) {
 //     }
 // }
 
-fn main() {
-    let ((x, y, z), seconds) = timeit(e142);
-    println!("// ans = {}", x + y + z);
-    println!("// x: {}\t, y: {}\tz: {}", x, y, z);
-    println!("// seconds:\t{}", seconds)
+pub fn main() -> String {
+    let (x, y, z) = e142();
+    format!("ans = {}\nx: {}\t, y: {}\tz: {}", x + y + z, x, y, z)
 }

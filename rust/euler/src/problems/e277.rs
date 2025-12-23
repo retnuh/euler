@@ -1,5 +1,6 @@
 #![allow(dead_code)]
-use euler::util::timeit_duration;
+#[cfg(test)]
+use crate::util::timeit_duration;
 use imbl::{shared_ptr, GenericVector};
 use num::integer::div_rem;
 // WIP still not enough
@@ -128,13 +129,10 @@ fn e277_brute(start: u64, seq: &str) -> u64 {
     0
 }
 
-fn main() {
-    e277_reverse(10, "DdDddUUdDD");
-
+pub fn main() -> String {
     let n = 10_u64.pow(15);
-    let (result, duration) = timeit_duration(|| e277_brute(n, "UDDDUdddDDUDDddDdDddDDUDDdUUDd"));
-    println!("// val:\t\t10^15\t{}", result);
-    println!("// seconds:\t{}", duration.as_secs_f32())
+    let result = e277_brute(n, "UDDDUdddDDUDDddDdDddDDUDDdUUDd");
+    format!("// val:\t\t10^15\t{}", result)
 }
 
 #[test]

@@ -1,7 +1,5 @@
 #![allow(dead_code)]
 
-use euler::util::timeit;
-
 const MODULUS: u64 = 4503599627370517_u64;
 const ADDEND: u64 = 1504170715041707_u64;
 
@@ -62,11 +60,10 @@ fn e700(limit: usize) -> u64 {
 
 // sum all coins:		0	1517926517777556
 // seconds:	0.000506
-fn main() {
+pub fn main() -> String {
     let limit = 0;
-    let (result, seconds) = timeit(|| e700(limit));
-    println!("// sum all coins:\t\t{}\t{}", limit, result);
-    println!("// seconds:\t{}", seconds)
+    let result = e700(limit);
+    format!("sum all coins:\t\t{}\t{}", limit, result)
 }
 
 #[test]

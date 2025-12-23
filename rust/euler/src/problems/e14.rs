@@ -1,4 +1,3 @@
-use euler::util::timeit_duration;
 use std::collections::HashMap;
 
 type TheMap<T> = HashMap<T, T>;
@@ -36,11 +35,10 @@ fn e14(n: u64) -> (u64, TheMap<u64>) {
 // val:         1000000 837799
 // seconds:     0.100887
 
-fn main() {
+pub fn main() -> String {
     let n = 1_000_000;
-    let (result, duration) = timeit_duration(|| e14(n));
-    println!("// val:\t\t{}\t{}", n, result.0);
-    println!("// seconds:\t{}", duration.as_secs_f32())
+    let result = e14(n);
+    format!("val:\t\t{}\t{}", n, result.0)
 }
 
 #[test]

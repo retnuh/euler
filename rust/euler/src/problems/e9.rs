@@ -1,4 +1,3 @@
-use euler::util::timeit;
 use num::ToPrimitive;
 
 // Some algebra, substituting in c and solving for b yields
@@ -24,9 +23,7 @@ fn e9() -> (i64, i64, i64) {
 // a = 200,	b = 375,	c = 425
 // abc = 31875000
 // seconds:	0.000003
-fn main() {
-    let ((a, b, c), seconds) = timeit(e9);
-    println!("// a = {},\tb = {},\tc = {}", a, b, c);
-    println!("// abc = {}", a * b * c);
-    println!("// seconds:\t{}", seconds)
+pub fn main() -> String {
+    let (a, b, c) = e9();
+    format!("a = {},\tb = {},\tc = {}\nabc = {}", a, b, c, a * b * c)
 }
